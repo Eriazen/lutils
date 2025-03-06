@@ -1,15 +1,6 @@
-import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import checkLambda as cl
 
-nCellsY = 10
-loadPath = "interpolationInfo_surface.dat"
-savePath = ""
-
-plotData = cl.intInfo(loadPath, nCellsY)
-plotData.load()
-cellX, cellY = plotData.returnDF()
 
 def xComparisonPlot(dataFrame, savePath, rows=None):
 
