@@ -1,0 +1,7 @@
+tests/
+rewritten/
+logs/
+.vscode/
+src/lambdaUtility/__pycache__/
+*.toml
+main.py
