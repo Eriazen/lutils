@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-import math
 import bisect
 import src.lambda_utility.data as data
 import src.lambda_utility.log as log
@@ -40,7 +39,7 @@ class SimulationTest(ABC):
         if out:
             return simple, hfdibrans
 
-    # get value from dataframe closest to input
+    # get value from series closest to input
     def _get_closest(self, series: pd.Series, input: float):
         lower = bisect.bisect_left(series.values, input)
         val = series[lower]
@@ -56,16 +55,17 @@ class SimulationTest(ABC):
             df = df.loc[df["x"] == key]
         return df
     
+    # calculate vector magnitude
     def _mag(self, df: pd.DataFrame):
         s = np.sqrt(np.square(df).sum(axis=1))
         return s
 
 
-class BfsTest(SimulationTest):
+class BFSTest(SimulationTest):
     def __init__(self, load_path: str, int_info: str, n_cells_y: int):
         super().__init__(load_path)
-        self._n_cells_y = n_cells_y
         # load data
+        self._n_cells_y = n_cells_y
         self._df = data.SimulationData(self._load_path, int_info).return_data()
 
     def ds(self, x_step: float, y_step: float):
