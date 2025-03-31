@@ -2,8 +2,8 @@ import pandas as pd
 import numpy as np
 import math
 import bisect
-import data
-import log
+import src.lambda_utility.data as data
+import src.lambda_utility.log as log
 from abc import ABC, abstractmethod
 
 
@@ -20,7 +20,8 @@ class SimulationTest(ABC):
     def int_check(self):
         pass
 
-    def compare_profile(self, simple_dat: str, hfdibrans_dat: str, profile: str, profile_value: float):
+    def compare_profile(self, simple_dat: str, hfdibrans_dat: str, profile: str,
+                        profile_value: float, out: bool = False):
         # read data
         simple = pd.read_csv(self._load_path+simple_dat)
         hfdibrans = pd.read_csv(self._load_path+hfdibrans_dat)
@@ -30,25 +31,33 @@ class SimulationTest(ABC):
         # sort
         simple.sort_values(by=profile)
         hfdibrans.sort_values(by=profile)
-        return simple, hfdibrans
+        # output log
+        out_log = log.ProfileLog()
+        out_log.concat(simple)
+        out_log.concat(hfdibrans)
+        out_log.write("log.profile")
+
+        if out:
+            return simple, hfdibrans
 
     # get value from dataframe closest to input
     def _get_closest(self, series: pd.Series, input: float):
         lower = bisect.bisect_left(series.values, input)
-        return lower
+        val = series[lower]
+        return val
     
-    # get values correspoding to input value
+    # get rows correspoding to input value
     def _sort_and_trim(self, df: pd.DataFrame, profile: str, input: float):
         if profile == "x":
-            key = self._get_closest(self, df["y"], input)
+            key = self._get_closest(df["y"], input)
             df = df.loc[df["y"] == key]
         elif profile == "y":
-            key = self._get_closest(self, df["x"], input)
+            key = self._get_closest(df["x"], input)
             df = df.loc[df["x"] == key]
         return df
     
-    def _mag_2D(self, df: pd.DataFrame):
-        s = np.sqrt(df["x"].pow(2) + df["y"].pow(2))
+    def _mag(self, df: pd.DataFrame):
+        s = np.sqrt(np.square(df).sum(axis=1))
         return s
 
 
@@ -101,11 +110,9 @@ class BfsTest(SimulationTest):
             columns={0: "x", 1: "y", 2: "z"})]).reset_index(drop=True)
         
         # calculate normal
-        mag = np.sqrt(np.square(vec1).sum(axis=1))
+        mag = self._mag(vec1)
         # normalize vector
-        vec1["x"] = vec1["x"].div(mag)
-        vec1["y"] = vec1["y"].div(mag)
-        vec1["z"] = vec1["z"].div(mag)
+        vec1 = vec1.div(mag, axis=0)
 
         # get surface normal for x-dir
         vec2 = self._lambda_x.loc[:, ["xSurfNorm", "ySurfNorm", "zSurfNorm"]]
@@ -113,7 +120,7 @@ class BfsTest(SimulationTest):
         vec2 = pd.concat([vec2, self._lambda_y[["xSurfNorm", "ySurfNorm", "zSurfNorm"]]]).reset_index(drop=True)
         # rename
         vec2 = vec2.rename(columns={"xSurfNorm": "x", "ySurfNorm": "y", "zSurfNorm": "z"})
-        # compare vectors
+        # compare normals
         vec1 = vec1.subtract(vec2, axis=1)
         # get cell ids
         cell = pd.concat([self._lambda_x["cellI"], self._lambda_y["cellI"]]).reset_index(drop=True)
@@ -129,3 +136,8 @@ class BfsTest(SimulationTest):
         out_log = log.IntLog()
         out_log.concat(vec1)
         out_log.write("log.int")
+
+    
+class NACATest(SimulationTest):
+    def __init__(self, load_path):
+        super().__init__(load_path)

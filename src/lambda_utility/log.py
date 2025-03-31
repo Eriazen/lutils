@@ -60,3 +60,20 @@ class IntLog(Log):
             f.write("-------------intPoint inconsistency-------------\n")
             f.write(out)
             f.write("\nTotal number of inconsistent cells: %i" % self._log.shape[0])
+
+
+class ProfileLog(Log):
+    def __init__(self, log_dir="./logs/"):
+        super().__init__(log_dir)
+
+    def write(self, file: str):
+        # drop empty columns
+        self._log = self._log.dropna(axis=1)
+        self._cellid_to_int()
+        # covert dataframe to string
+        out = self._log.to_string(index=False)
+        # open out stream and write
+        with open(self._log_dir+file, "w") as f:
+            f.write("-------------profile value comparison-------------\n")
+            f.write(out)
+            f.write("\nTotal number of inconsistent cells: %i" % self._log.shape[0])
