@@ -42,6 +42,3 @@ class BfsData(SimulationData):
         # split dataframe into two frames based on geometry
         self._lambda_x = self._df[:n_cells_y-2].reset_index(drop=True)
         self._lambda_y = self._df[n_cells_y:].reset_index(drop=True)
-
-    def return_data(self):
-        return self._lambda_x, self._lambda_y

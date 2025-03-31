@@ -64,26 +64,28 @@ class SimulationTest(ABC):
 class BfsTest(SimulationTest):
     def __init__(self, load_path: str, int_info: str, n_cells_y: int):
         super().__init__(load_path)
+        self._n_cells_y = n_cells_y
         # load data
-        self._lambda_x, self._lambda_y = data.BfsData(
-                                        load_path, int_info, n_cells_y
-                                        ).return_data()
+        self._df = data.SimulationData(self._load_path, int_info).return_data()
 
     def ds(self, x_step: float, y_step: float):
+        # initialize lambda
+        lambda_x = self._df[:self._n_cells_y-2].reset_index(drop=True)
+        lambda_y = self._df[self._n_cells_y:].reset_index(drop=True)
         # calculate ds difference for cells in x-dir
-        self._lambda_x["ds"] = ((self._lambda_x["xCellCenter"] - self._lambda_x["xIntPoint1"])
-                                -(self._lambda_x["xCellCenter"] - x_step))
+        lambda_x["ds"] = ((lambda_x["xCellCenter"] - lambda_x["xIntPoint1"])
+                                -(lambda_x["xCellCenter"] - x_step))
         # reduce dataframe
-        x = self._lambda_x.loc[:, ["cellI", "ds"]]
+        x = lambda_x.loc[:, ["cellI", "ds"]]
         # replace and drop empty rows
         x["ds"] = x["ds"].replace(0, np.nan)
         x = x.dropna()
 
         # calculate ds difference for cells in y-dir
-        self._lambda_y["ds"] = ((self._lambda_y["yCellCenter"] - self._lambda_y["yIntPoint1"])
-                               -(self._lambda_y["yCellCenter"] - y_step))
+        lambda_y["ds"] = ((lambda_y["yCellCenter"] - lambda_y["yIntPoint1"])
+                               -(lambda_y["yCellCenter"] - y_step))
         # reduce dataframe
-        y = self._lambda_y.loc[:, ["cellI", "ds"]]
+        y = lambda_y.loc[:, ["cellI", "ds"]]
         # replace and drop empty rows
         y["ds"] = y["ds"].replace(0, np.nan)
         y = y.dropna()
@@ -94,20 +96,12 @@ class BfsTest(SimulationTest):
         out_log.concat(y)
         out_log.write("log.ds")
 
-        
     def int_check(self):
         vec1 = pd.DataFrame()
         # calculate the distance between first and last point in x-dir
-        vec1["x"] = self._lambda_x["xIntPoint3"].subtract(self._lambda_x["xIntPoint1"])
-        vec1["y"] = self._lambda_x["yIntPoint3"].subtract(self._lambda_x["yIntPoint1"])
-        vec1["z"] = self._lambda_x["zIntPoint3"].subtract(self._lambda_x["zIntPoint1"])
-        # repeat for y-dir --- TO-DO: GET RID OF LAMBDA_X, LAMBDA_Y
-        temp_x = self._lambda_y["xIntPoint3"].subtract(self._lambda_y["xIntPoint1"])
-        temp_y = self._lambda_y["yIntPoint3"].subtract(self._lambda_y["yIntPoint1"])
-        temp_z = self._lambda_y["zIntPoint3"].subtract(self._lambda_y["zIntPoint1"])
-        # concat frames, rename
-        vec1 = pd.concat([vec1, pd.concat([temp_x, temp_y, temp_z], axis=1).rename(
-            columns={0: "x", 1: "y", 2: "z"})]).reset_index(drop=True)
+        vec1["x"] = self._df["xIntPoint3"].subtract(self._df["xIntPoint1"])
+        vec1["y"] = self._df["yIntPoint3"].subtract(self._df["yIntPoint1"])
+        vec1["z"] = self._df["zIntPoint3"].subtract(self._df["zIntPoint1"])
         
         # calculate normal
         mag = self._mag(vec1)
@@ -115,21 +109,17 @@ class BfsTest(SimulationTest):
         vec1 = vec1.div(mag, axis=0)
 
         # get surface normal for x-dir
-        vec2 = self._lambda_x.loc[:, ["xSurfNorm", "ySurfNorm", "zSurfNorm"]]
-        # repeat for y-dir
-        vec2 = pd.concat([vec2, self._lambda_y[["xSurfNorm", "ySurfNorm", "zSurfNorm"]]]).reset_index(drop=True)
+        vec2 = self._df.loc[:, ["xSurfNorm", "ySurfNorm", "zSurfNorm"]]
         # rename
         vec2 = vec2.rename(columns={"xSurfNorm": "x", "ySurfNorm": "y", "zSurfNorm": "z"})
         # compare normals
         vec1 = vec1.subtract(vec2, axis=1)
-        # get cell ids
-        cell = pd.concat([self._lambda_x["cellI"], self._lambda_y["cellI"]]).reset_index(drop=True)
         
         # replace and drop empty rows
         vec1 = vec1.replace(0, np.nan)
         vec1 = vec1.loc[:, ["x", "y", "z"]].dropna(how="all")
         # concat cell ids and restructure
-        vec1 = vec1.join(cell, how="left")
+        vec1 = vec1.join(self._df["cellI"], how="left")
         vec1 = vec1.loc[:, ["cellI", "x", "y", "z"]]
 
         # log output
