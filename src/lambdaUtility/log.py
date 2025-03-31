@@ -8,12 +8,15 @@ class Log(ABC):
         self._log = pd.Series()
         self._log_dir = log_dir
 
+        # check and create directory
         if not os.path.exists(self._log_dir):
             os.makedirs(self._log_dir)
 
+    # concatenate info onto log
     def concat(self, data: pd.Series):
         self._log = pd.concat([self._log, data], ignore_index=True)
 
+    # convert cell ids from float to int
     def _cellid_to_int(self):
         if "cellI" in self._log:
             self._log["cellI"] = self._log["cellI"].astype(int)
@@ -28,9 +31,12 @@ class DsLog(Log):
         super().__init__(log_dir)
 
     def write(self, file: str):
+        # drop empty columns, TO-DO: SOLVE INITIAL LOG NAN ROWS TO AVOID USING DROPNA AT THE SRAT OF EVERY LOG
         self._log = self._log.dropna(axis=1)
         self._cellid_to_int()
+        # convert dataframe to string
         out = self._log.to_string(index=False)
+        # open out stream and write
         with open(self._log_dir+file, "w") as f:
             f.write("-------------ds difference-------------\n")
             f.write(out)
@@ -43,9 +49,12 @@ class IntLog(Log):
         super().__init__(log_dir)
 
     def write(self, file: str):
+        # drop empty columns
         self._log = self._log.dropna(axis=1)
         self._cellid_to_int()
+        # covert dataframe to string
         out = self._log.to_string(index=False)
+        # open out stream and write
         with open(self._log_dir+file, "w") as f:
             f.write("-------------intPoint inconsistency-------------\n")
             f.write(out)
