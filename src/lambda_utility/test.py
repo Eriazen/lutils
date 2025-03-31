@@ -42,7 +42,7 @@ class SimulationTest(ABC):
         
     def int_check(self, out: bool = False):
         vec1 = pd.DataFrame()
-        # calculate the distance between first and last point in x-dir
+        # calculate the distance between first and last point
         vec1["x"] = self._df["xIntPoint3"].subtract(self._df["xIntPoint1"])
         vec1["y"] = self._df["yIntPoint3"].subtract(self._df["yIntPoint1"])
         vec1["z"] = self._df["zIntPoint3"].subtract(self._df["zIntPoint1"])
@@ -52,17 +52,17 @@ class SimulationTest(ABC):
         # normalize vector
         vec1 = vec1.div(mag, axis=0)
 
-        # get surface normal for x-dir
+        # get surface normal
         vec2 = self._df.loc[:, ["xSurfNorm", "ySurfNorm", "zSurfNorm"]]
-        # rename
+        # rename columns
         vec2 = vec2.rename(columns={"xSurfNorm": "x", "ySurfNorm": "y", "zSurfNorm": "z"})
         # compare normals
         vec1 = vec1.subtract(vec2, axis=1)
         
         # replace and drop empty rows
-        vec1 = vec1.applymap(lambda x: np.nan if np.isclose(x, 0) else x, na_action="ignore")
+        vec1 = self._isclose_replace(vec1)
         vec1 = vec1.loc[:, ["x", "y", "z"]].dropna(how="all")
-        # concat cell ids and restructure
+        # concatenate cell ids and restructure
         vec1 = vec1.join(self._df["cellI"], how="left")
         vec1 = vec1.loc[:, ["cellI", "x", "y", "z"]]
 
@@ -94,6 +94,10 @@ class SimulationTest(ABC):
     def _mag(self, df: pd.DataFrame):
         s = np.sqrt(np.square(df).sum(axis=1))
         return s
+    
+    def _isclose_replace(self, df):
+        df = df.applymap(lambda x: np.nan if np.isclose(x, 0) else x, na_action="ignore")
+        return df
 
 
 class BFSTest(SimulationTest):
@@ -103,7 +107,7 @@ class BFSTest(SimulationTest):
         self._n_cells_y = n_cells_y
 
     def ds(self, x_step: float, y_step: float, out: bool = False):
-        # initialize lambda
+        # initialize lambda frames
         lambda_x = self._df[:self._n_cells_y-2].reset_index(drop=True)
         lambda_y = self._df[self._n_cells_y:].reset_index(drop=True)
         # calculate ds difference for cells in x-dir
@@ -112,7 +116,7 @@ class BFSTest(SimulationTest):
         # reduce dataframe
         x = lambda_x.loc[:, ["cellI", "ds"]]
         # replace and drop empty rows
-        x["ds"] = x["ds"].replace(0, np.nan)
+        x["ds"] = self._isclose_replace(x["ds"])
         x = x.dropna()
 
         # calculate ds difference for cells in y-dir
@@ -121,7 +125,7 @@ class BFSTest(SimulationTest):
         # reduce dataframe
         y = lambda_y.loc[:, ["cellI", "ds"]]
         # replace and drop empty rows
-        y["ds"] = y["ds"].replace(0, np.nan)
+        y["ds"] = self._isclose_replace(y["ds"])
         y = y.dropna()
 
         # log output
