@@ -2,6 +2,6 @@ tests/
 rewritten/
 logs/
 .vscode/
-src/lambdaUtility/__pycache__/
+src/lambda_utility/__pycache__/
 *.toml
 main.py

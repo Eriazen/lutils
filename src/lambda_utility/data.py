@@ -6,9 +6,12 @@ from abc import ABC, abstractmethod
 class SimulationData(ABC):
     def __init__(self, load_path: str, int_info: str):
         self._df = pd.read_csv(load_path+int_info)
-        self.data_manipulation()
+        self._data_manipulation()
+    
+    def return_data(self):
+        return self._df
 
-    def data_manipulation(self):
+    def _data_manipulation(self):
         # split cellCenter into xyz coordinates
         data = self._df["cellCenter"].str.split(expand=True).rename(columns={
             0: "xCellCenter", 1: "yCellCenter", 2: "zCellCenter"})
@@ -30,10 +33,6 @@ class SimulationData(ABC):
         data = data.apply(pd.to_numeric)
         # save as attribute
         self._df = data
-    
-    @abstractmethod
-    def drop(self):
-        pass
 
 
 class BfsData(SimulationData):

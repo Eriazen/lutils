@@ -2,8 +2,8 @@ import pandas as pd
 import numpy as np
 import math
 import bisect
-import src.lambdaUtility.data as data
-import src.lambdaUtility.log as log
+import data
+import log
 from abc import ABC, abstractmethod
 
 
@@ -20,7 +20,7 @@ class SimulationTest(ABC):
     def int_check(self):
         pass
 
-    def compare_profile(self, simple_dat: str, hfdibrans_dat: str, profile: str, profile_value: float, variable: str):
+    def compare_profile(self, simple_dat: str, hfdibrans_dat: str, profile: str, profile_value: float):
         # read data
         simple = pd.read_csv(self._load_path+simple_dat)
         hfdibrans = pd.read_csv(self._load_path+hfdibrans_dat)
@@ -30,24 +30,26 @@ class SimulationTest(ABC):
         # sort
         simple.sort_values(by=profile)
         hfdibrans.sort_values(by=profile)
-
         return simple, hfdibrans
 
     # get value from dataframe closest to input
-    def _get_closest(self, series, input):
+    def _get_closest(self, series: pd.Series, input: float):
         lower = bisect.bisect_left(series.values, input)
         return lower
     
     # get values correspoding to input value
-    def _sort_and_trim(self, df, profile, input):
+    def _sort_and_trim(self, df: pd.DataFrame, profile: str, input: float):
         if profile == "x":
             key = self._get_closest(self, df["y"], input)
             df = df.loc[df["y"] == key]
         elif profile == "y":
             key = self._get_closest(self, df["x"], input)
             df = df.loc[df["x"] == key]
-        
         return df
+    
+    def _mag_2D(self, df: pd.DataFrame):
+        s = np.sqrt(df["x"].pow(2) + df["y"].pow(2))
+        return s
 
 
 class BfsTest(SimulationTest):

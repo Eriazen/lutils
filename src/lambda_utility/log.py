@@ -31,7 +31,8 @@ class DsLog(Log):
         super().__init__(log_dir)
 
     def write(self, file: str):
-        # drop empty columns, TO-DO: SOLVE INITIAL LOG NAN ROWS TO AVOID USING DROPNA AT THE SRAT OF EVERY LOG
+        # drop empty columns
+        # TO-DO: SOLVE INITIAL LOG NAN ROWS TO AVOID USING DROPNA AT THE START OF EVERY WRITE FUNCTION
         self._log = self._log.dropna(axis=1)
         self._cellid_to_int()
         # convert dataframe to string
