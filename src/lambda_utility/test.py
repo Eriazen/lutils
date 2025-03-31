@@ -39,7 +39,7 @@ class SimulationTest(ABC):
         if out:
             return simple, hfdibrans
         
-    def int_check(self):
+    def int_check(self, out: bool = False):
         vec1 = pd.DataFrame()
         # calculate the distance between first and last point in x-dir
         vec1["x"] = self._df["xIntPoint3"].subtract(self._df["xIntPoint1"])
@@ -70,6 +70,9 @@ class SimulationTest(ABC):
         out_log.concat(vec1)
         out_log.write("log.int")
 
+        if out:
+            return vec1
+
     # get value from series closest to input
     def _get_closest(self, series: pd.Series, input: float):
         lower = bisect.bisect_left(series.values, input)
@@ -99,7 +102,7 @@ class BFSTest(SimulationTest):
         self._n_cells_y = n_cells_y
         self._df = data.SimulationData(self._load_path, int_info).return_data()
 
-    def ds(self, x_step: float, y_step: float):
+    def ds(self, x_step: float, y_step: float, out: bool = False):
         # initialize lambda
         lambda_x = self._df[:self._n_cells_y-2].reset_index(drop=True)
         lambda_y = self._df[self._n_cells_y:].reset_index(drop=True)
@@ -126,6 +129,9 @@ class BFSTest(SimulationTest):
         out_log.concat(x)
         out_log.concat(y)
         out_log.write("log.ds")
+
+        if out:
+            return x, y
 
     
 class NACATest(SimulationTest):
