@@ -95,9 +95,12 @@ class SimulationTest(ABC):
         s = np.sqrt(np.square(df).sum(axis=1))
         return s
     
-    def _isclose_replace(self, df):
-        df = df.applymap(lambda x: np.nan if np.isclose(x, 0) else x, na_action="ignore")
-        return df
+    def _isclose_replace(self, data):
+        if isinstance(data, pd.DataFrame):
+            data = data.applymap(lambda x: np.nan if np.isclose(x, 0) else x, na_action="ignore")
+        elif isinstance(data, pd.Series):
+            data = data.apply(lambda x: np.nan if np.isclose(x, 0) else x)
+        return data
 
 
 class BFSTest(SimulationTest):
@@ -110,6 +113,7 @@ class BFSTest(SimulationTest):
         # initialize lambda frames
         lambda_x = self._df[:self._n_cells_y-2].reset_index(drop=True)
         lambda_y = self._df[self._n_cells_y:].reset_index(drop=True)
+        
         # calculate ds difference for cells in x-dir
         lambda_x["ds"] = ((lambda_x["xCellCenter"] - lambda_x["xIntPoint1"])
                                 -(lambda_x["xCellCenter"] - x_step))

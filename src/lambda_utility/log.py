@@ -15,6 +15,7 @@ class Log(ABC):
     # concatenate info onto log
     def concat(self, data: pd.Series):
         self._log = pd.concat([self._log, data], ignore_index=True)
+        self._log = self._log.dropna(axis=1)
 
     # convert cell ids from float to int
     def _cellid_to_int(self):
@@ -33,7 +34,7 @@ class DsLog(Log):
     def write(self, file: str):
         # drop empty columns
         # TO-DO: SOLVE INITIAL LOG NAN ROWS TO AVOID USING DROPNA AT THE START OF EVERY WRITE FUNCTION
-        self._log = self._log.dropna(axis=1)
+        #self._log = self._log.dropna(axis=1)
         self._cellid_to_int()
         # convert dataframe to string
         out = self._log.to_string(index=False)
@@ -51,7 +52,7 @@ class IntLog(Log):
 
     def write(self, file: str):
         # drop empty columns
-        self._log = self._log.dropna(axis=1)
+        #self._log = self._log.dropna(axis=1)
         self._cellid_to_int()
         # covert dataframe to string
         out = self._log.to_string(index=False)
