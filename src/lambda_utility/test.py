@@ -38,6 +38,37 @@ class SimulationTest(ABC):
 
         if out:
             return simple, hfdibrans
+        
+    def int_check(self):
+        vec1 = pd.DataFrame()
+        # calculate the distance between first and last point in x-dir
+        vec1["x"] = self._df["xIntPoint3"].subtract(self._df["xIntPoint1"])
+        vec1["y"] = self._df["yIntPoint3"].subtract(self._df["yIntPoint1"])
+        vec1["z"] = self._df["zIntPoint3"].subtract(self._df["zIntPoint1"])
+        
+        # calculate normal
+        mag = self._mag(vec1)
+        # normalize vector
+        vec1 = vec1.div(mag, axis=0)
+
+        # get surface normal for x-dir
+        vec2 = self._df.loc[:, ["xSurfNorm", "ySurfNorm", "zSurfNorm"]]
+        # rename
+        vec2 = vec2.rename(columns={"xSurfNorm": "x", "ySurfNorm": "y", "zSurfNorm": "z"})
+        # compare normals
+        vec1 = vec1.subtract(vec2, axis=1)
+        
+        # replace and drop empty rows
+        vec1 = vec1.replace(0, np.nan)
+        vec1 = vec1.loc[:, ["x", "y", "z"]].dropna(how="all")
+        # concat cell ids and restructure
+        vec1 = vec1.join(self._df["cellI"], how="left")
+        vec1 = vec1.loc[:, ["cellI", "x", "y", "z"]]
+
+        # log output
+        out_log = log.IntLog()
+        out_log.concat(vec1)
+        out_log.write("log.int")
 
     # get value from series closest to input
     def _get_closest(self, series: pd.Series, input: float):
@@ -96,38 +127,10 @@ class BFSTest(SimulationTest):
         out_log.concat(y)
         out_log.write("log.ds")
 
-    def int_check(self):
-        vec1 = pd.DataFrame()
-        # calculate the distance between first and last point in x-dir
-        vec1["x"] = self._df["xIntPoint3"].subtract(self._df["xIntPoint1"])
-        vec1["y"] = self._df["yIntPoint3"].subtract(self._df["yIntPoint1"])
-        vec1["z"] = self._df["zIntPoint3"].subtract(self._df["zIntPoint1"])
-        
-        # calculate normal
-        mag = self._mag(vec1)
-        # normalize vector
-        vec1 = vec1.div(mag, axis=0)
-
-        # get surface normal for x-dir
-        vec2 = self._df.loc[:, ["xSurfNorm", "ySurfNorm", "zSurfNorm"]]
-        # rename
-        vec2 = vec2.rename(columns={"xSurfNorm": "x", "ySurfNorm": "y", "zSurfNorm": "z"})
-        # compare normals
-        vec1 = vec1.subtract(vec2, axis=1)
-        
-        # replace and drop empty rows
-        vec1 = vec1.replace(0, np.nan)
-        vec1 = vec1.loc[:, ["x", "y", "z"]].dropna(how="all")
-        # concat cell ids and restructure
-        vec1 = vec1.join(self._df["cellI"], how="left")
-        vec1 = vec1.loc[:, ["cellI", "x", "y", "z"]]
-
-        # log output
-        out_log = log.IntLog()
-        out_log.concat(vec1)
-        out_log.write("log.int")
-
     
 class NACATest(SimulationTest):
     def __init__(self, load_path):
         super().__init__(load_path)
+
+    def ds(self):
+        pass
