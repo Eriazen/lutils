@@ -7,9 +7,10 @@ from abc import ABC, abstractmethod
 
 
 class SimulationTest(ABC):
-    def __init__(self, load_path: str):
+    def __init__(self, load_path: str, int_info: str):
         self._load_path = load_path
         self._log = pd.Series()
+        self._df = data.SimulationData(self._load_path, int_info).return_data()
 
     @abstractmethod
     def ds(self):
@@ -59,7 +60,7 @@ class SimulationTest(ABC):
         vec1 = vec1.subtract(vec2, axis=1)
         
         # replace and drop empty rows
-        vec1 = vec1.replace(0, np.nan)
+        vec1 = vec1.applymap(lambda x: np.nan if np.isclose(x, 0) else x, na_action="ignore")
         vec1 = vec1.loc[:, ["x", "y", "z"]].dropna(how="all")
         # concat cell ids and restructure
         vec1 = vec1.join(self._df["cellI"], how="left")
@@ -97,10 +98,9 @@ class SimulationTest(ABC):
 
 class BFSTest(SimulationTest):
     def __init__(self, load_path: str, int_info: str, n_cells_y: int):
-        super().__init__(load_path)
+        super().__init__(load_path, int_info)
         # load data
         self._n_cells_y = n_cells_y
-        self._df = data.SimulationData(self._load_path, int_info).return_data()
 
     def ds(self, x_step: float, y_step: float, out: bool = False):
         # initialize lambda
@@ -135,8 +135,8 @@ class BFSTest(SimulationTest):
 
     
 class NACATest(SimulationTest):
-    def __init__(self, load_path):
-        super().__init__(load_path)
+    def __init__(self, load_path: str, int_info: str):
+        super().__init__(load_path, int_info)
 
     def ds(self):
         pass
