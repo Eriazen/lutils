@@ -9,7 +9,6 @@ from abc import ABC, abstractmethod
 class SimulationTest(ABC):
     def __init__(self, load_path: str, int_info: str):
         self._load_path = load_path
-        self._log = pd.Series()
         self._df = data.SimulationData(self._load_path, int_info).return_data()
 
     @abstractmethod
@@ -107,27 +106,27 @@ class BFSTest(SimulationTest):
     def __init__(self, load_path: str, int_info: str, n_cells_y: int):
         super().__init__(load_path, int_info)
         # load data
-        self._n_cells_y = n_cells_y
+        self._bfs = data.BfsData(self._load_path, int_info, n_cells_y)
 
     def ds(self, x_step: float, y_step: float, out: bool = False):
         # initialize lambda frames
-        lambda_x = self._df[:self._n_cells_y-2].reset_index(drop=True)
-        lambda_y = self._df[self._n_cells_y:].reset_index(drop=True)
+        #lambda_x = self._df[:self._n_cells_y-2].reset_index(drop=True)
+        #lambda_y = self._df[self._n_cells_y:].reset_index(drop=True)
         
         # calculate ds difference for cells in x-dir
-        lambda_x["ds"] = ((lambda_x["xCellCenter"] - lambda_x["xIntPoint1"])
-                                -(lambda_x["xCellCenter"] - x_step))
+        self._bfs.lambda_x["ds"] = ((self._bfs.lambda_x["xCellCenter"] - self._bfs.lambda_x["xIntPoint1"])
+                                -(self._bfs.lambda_x["xCellCenter"] - x_step))
         # reduce dataframe
-        x = lambda_x.loc[:, ["cellI", "ds"]]
+        x = self._bfs.lambda_x.loc[:, ["cellI", "ds"]]
         # replace and drop empty rows
         x["ds"] = self._isclose_replace(x["ds"])
         x = x.dropna()
 
         # calculate ds difference for cells in y-dir
-        lambda_y["ds"] = ((lambda_y["yCellCenter"] - lambda_y["yIntPoint1"])
-                               -(lambda_y["yCellCenter"] - y_step))
+        self._bfs.lambda_y["ds"] = ((self._bfs.lambda_y["yCellCenter"] - self._bfs.lambda_y["yIntPoint1"])
+                                    -(self._bfs.lambda_y["yCellCenter"] - y_step))
         # reduce dataframe
-        y = lambda_y.loc[:, ["cellI", "ds"]]
+        y = self._bfs.lambda_y.loc[:, ["cellI", "ds"]]
         # replace and drop empty rows
         y["ds"] = self._isclose_replace(y["ds"])
         y = y.dropna()

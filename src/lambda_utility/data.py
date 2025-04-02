@@ -31,13 +31,12 @@ class SimulationData(ABC):
         # convert from string to number
         data = data.apply(pd.to_numeric)
         # save as attribute
-        self._df = data
+        self._df = data.copy()
 
 
 class BfsData(SimulationData):
     def __init__(self, load_path: str, int_info: str, n_cells_y: int):
         super().__init__(load_path, int_info)
-        self.n_cells_y = n_cells_y
         # split dataframe into two frames based on geometry
-        self._lambda_x = self._df[:n_cells_y-2].reset_index(drop=True)
-        self._lambda_y = self._df[n_cells_y:].reset_index(drop=True)
+        self.lambda_x = self._df[:n_cells_y-2].reset_index(drop=True).copy()
+        self.lambda_y = self._df[n_cells_y:].reset_index(drop=True).copy()
