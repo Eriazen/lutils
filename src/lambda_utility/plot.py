@@ -11,23 +11,27 @@ class SimPlot(ABC):
         self._df = test_obj._df
     
     @abstractmethod
-    def plot_int_points(self, range_start, range_stop):
+    def plot_int_points(self, range_start, range_stop, filename: str):
         pass
 
     def plot_ds(self):
         pass
     
-    def plot_profile(self, simple_dat: str, hfdibrans_dat: str, profile: str, profile_value: float, field: str):
+    def plot_profile(self, filename: str, simple_dat: str, hfdibrans_dat: str, profile: str,
+                     profile_value: float, field: str, grid: bool = False):
         # get dataframes
         simple, hfdibrans = self._test.compare_profile(simple_dat, hfdibrans_dat,
                                                        profile, profile_value, out=True)
 
         # plot figure
         fig = plt.figure(figsize=(20, 12))
-        plt.scatter(simple[profile], simple[field])
-        plt.scatter(hfdibrans[profile], hfdibrans[field])
+        plt.scatter(simple[profile], simple[field], label="simple")
+        plt.scatter(hfdibrans[profile], hfdibrans[field], label="hfdibrans")
+        plt.legend()
+        if grid:
+            plt.grid()
 
-        fig.savefig("profile_test.png")
+        fig.savefig(filename)
 
     def _values_in_range(self, df: pd.DataFrame, col: str,start: float, stop: float):
         lower = bisect.bisect_left(df[col], start)
@@ -38,7 +42,7 @@ class BFSPlot(SimPlot):
     def __init__(self, bfs_obj: test.BFSTest):
         super().__init__(bfs_obj)
 
-    def plot_int_points(self, range_start: float = 0, range_stop: float = 1):
+    def plot_int_points(self, filename: str, range_start: float = 0, range_stop: float = 1):
         # select values based on input range
         df = self._values_in_range(self._df.sort_values(by="xCellCenter"),
                                    "xCellCenter", range_start, range_stop)
@@ -59,14 +63,14 @@ class BFSPlot(SimPlot):
         plt.hlines(0.01, df["xIntPoint1"].min(), df["xIntPoint1"].max(), color="black")
         if range_stop >= 1.0:
             plt.vlines(1.0, df["yIntPoint1"].min(), df["yIntPoint1"].max(), color="black")
-        fig.savefig("int_test.png")
+        fig.savefig(filename)
 
 
 class NACAPlot(SimPlot):
     def __init__(self, test_obj: test.NACATest):
         super().__init__(test_obj)
 
-    def plot_int_points(self, range_start: float, range_stop: float, func):
+    def plot_int_points(self, filename: str, func, range_start: float, range_stop: float):
         # select values based on input range
         df = self._values_in_range(self._df.reset_index(drop=True),
                                    "yCellCenter", range_start, range_stop)
@@ -91,4 +95,4 @@ class NACAPlot(SimPlot):
         plt.plot(df["xIntPoint1"].sort_values(), -y, color="black")
 
         plt.legend()
-        fig.savefig("int_naca.png")
+        fig.savefig(filename)
