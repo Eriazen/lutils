@@ -2,7 +2,7 @@ import pandas as pd
 from abc import ABC, abstractmethod
 
 
-class SimulationData(ABC):
+class SimData(ABC):
     def __init__(self, load_path: str, int_info: str):
         self._df = pd.read_csv(load_path+int_info)
         self._data_manipulation()
@@ -34,7 +34,7 @@ class SimulationData(ABC):
         self._df = data.copy()
 
 
-class BfsData(SimulationData):
+class BfsData(SimData):
     def __init__(self, load_path: str, int_info: str, n_cells_y: int):
         super().__init__(load_path, int_info)
         # split dataframe into two frames based on geometry

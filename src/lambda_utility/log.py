@@ -75,6 +75,6 @@ class ProfileLog(Log):
         out = self._log.to_string(index=False)
         # open out stream and write
         with open(self._log_dir+file, "w") as f:
-            f.write("-------------profile value comparison-------------\n")
+            f.write("-------------profile values-------------\n")
             f.write(out)
-            f.write("\nTotal number of inconsistent cells: %i" % self._log.shape[0])
+            f.write("\nTotal number of points: %i" % self._log.shape[0])

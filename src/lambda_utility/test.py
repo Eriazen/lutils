@@ -6,10 +6,10 @@ import src.lambda_utility.log as log
 from abc import ABC, abstractmethod
 
 
-class SimulationTest(ABC):
+class SimTest(ABC):
     def __init__(self, load_path: str, int_info: str):
         self._load_path = load_path
-        self._df = data.SimulationData(self._load_path, int_info).return_data()
+        self._df = data.SimData(self._load_path, int_info).return_data()
 
     @abstractmethod
     def ds(self):
@@ -31,10 +31,13 @@ class SimulationTest(ABC):
         simple.sort_values(by=profile)
         hfdibrans.sort_values(by=profile)
         # output log
-        out_log = log.ProfileLog()
-        out_log.concat(simple)
-        out_log.concat(hfdibrans)
-        out_log.write("log.profile")
+        out_log_simple = log.ProfileLog()
+        out_log_simple.concat(simple)
+        out_log_simple.write("log.profile_simple")
+
+        out_log_hfdibrans = log.ProfileLog()
+        out_log_hfdibrans.concat(hfdibrans)
+        out_log_hfdibrans.write("log.profile_hfdibrans")
 
         if out:
             return simple, hfdibrans
@@ -94,6 +97,7 @@ class SimulationTest(ABC):
         s = np.sqrt(np.square(df).sum(axis=1))
         return s
     
+    # replace values close to zero with nan
     def _isclose_replace(self, data):
         if isinstance(data, pd.DataFrame):
             data = data.applymap(lambda x: np.nan if np.isclose(x, 0) else x, na_action="ignore")
@@ -102,17 +106,13 @@ class SimulationTest(ABC):
         return data
 
 
-class BFSTest(SimulationTest):
+class BFSTest(SimTest):
     def __init__(self, load_path: str, int_info: str, n_cells_y: int):
         super().__init__(load_path, int_info)
         # load data
         self._bfs = data.BfsData(self._load_path, int_info, n_cells_y)
 
     def ds(self, x_step: float, y_step: float, out: bool = False):
-        # initialize lambda frames
-        #lambda_x = self._df[:self._n_cells_y-2].reset_index(drop=True)
-        #lambda_y = self._df[self._n_cells_y:].reset_index(drop=True)
-        
         # calculate ds difference for cells in x-dir
         self._bfs.lambda_x["ds"] = ((self._bfs.lambda_x["xCellCenter"] - self._bfs.lambda_x["xIntPoint1"])
                                 -(self._bfs.lambda_x["xCellCenter"] - x_step))
@@ -141,7 +141,7 @@ class BFSTest(SimulationTest):
             return x, y
 
     
-class NACATest(SimulationTest):
+class NACATest(SimTest):
     def __init__(self, load_path: str, int_info: str):
         super().__init__(load_path, int_info)
 
