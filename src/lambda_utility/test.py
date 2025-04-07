@@ -45,9 +45,9 @@ class SimTest(ABC):
     def int_check(self, out: bool = False):
         vec1 = pd.DataFrame()
         # calculate the distance between first and last point
-        vec1["x"] = self._df["xIntPoint3"].subtract(self._df["xIntPoint1"])
-        vec1["y"] = self._df["yIntPoint3"].subtract(self._df["yIntPoint1"])
-        vec1["z"] = self._df["zIntPoint3"].subtract(self._df["zIntPoint1"])
+        vec1["x"] = self._df["xIntPoint3"].subtract(self._df["xIntPoint1"]).copy()
+        vec1["y"] = self._df["yIntPoint3"].subtract(self._df["yIntPoint1"]).copy()
+        vec1["z"] = self._df["zIntPoint3"].subtract(self._df["zIntPoint1"]).copy()
         
         # calculate normal
         mag = self._mag(vec1)
@@ -55,7 +55,7 @@ class SimTest(ABC):
         vec1 = vec1.div(mag, axis=0)
 
         # get surface normal
-        vec2 = self._df.loc[:, ["xSurfNorm", "ySurfNorm", "zSurfNorm"]]
+        vec2 = self._df.loc[:, ["xSurfNorm", "ySurfNorm", "zSurfNorm"]].copy()
         # rename columns
         vec2 = vec2.rename(columns={"xSurfNorm": "x", "ySurfNorm": "y", "zSurfNorm": "z"})
         # compare normals
