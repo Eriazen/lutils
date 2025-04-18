@@ -1,6 +1,6 @@
 import pandas as pd
 import bisect
-import src.lambda_utility.test as test
+import src.lutils.test as test
 import matplotlib.pyplot as plt
 from abc import ABC, abstractmethod
 

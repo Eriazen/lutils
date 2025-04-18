@@ -3,8 +3,8 @@ from abc import ABC, abstractmethod
 
 
 class SimData(ABC):
-    def __init__(self, load_path: str, int_info: str):
-        self._df = pd.read_csv(load_path+int_info)
+    def __init__(self, load_path: str):
+        self.df = pd.read_csv(load_path)
         self._data_manipulation()
     
     def return_data(self):
@@ -34,9 +34,14 @@ class SimData(ABC):
         self._df = data.copy()
 
 
-class BfsData(SimData):
-    def __init__(self, load_path: str, int_info: str, n_cells_y: int):
-        super().__init__(load_path, int_info)
+class BFSData(SimData):
+    def __init__(self, load_path: str, n_cells_y: int):
+        super().__init__(load_path)
         # split dataframe into two frames based on geometry
         self.lambda_x = self._df[:n_cells_y-2].reset_index(drop=True).copy()
         self.lambda_y = self._df[n_cells_y:].reset_index(drop=True).copy()
+
+
+class NACAData(SimData):
+    def __init__(self, load_path):
+        super().__init__(load_path)
