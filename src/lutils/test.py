@@ -1,13 +1,14 @@
 import pandas as pd
-import numpy as np
-import bisect
-import src.lutils.log as log
-import src.lutils.data as data
-from src.lutils.utility_functions import *
+from . import log
+from . import data
+from .utility_functions import *
 
 # compares the field profile of simple and hfdibrans
-def compare_profile(simple_dat: str, hfdibrans_dat: str, profile: str,
-                        profile_value: float, out_log: bool = True):
+def compare_profile(simple_dat: str,
+                    hfdibrans_dat: str,
+                    profile: str,
+                    profile_value: float,
+                    out_log: bool = True) -> tuple:
     # read data
     simple = pd.read_csv(simple_dat)
     hfdibrans = pd.read_csv(hfdibrans_dat)
@@ -29,7 +30,8 @@ def compare_profile(simple_dat: str, hfdibrans_dat: str, profile: str,
 
     return simple, hfdibrans
 
-def int_check(sim_data: data.SimData, out_log: bool = True):
+def int_check(sim_data: data.SimData,
+              out_log: bool = True) -> pd.DataFrame:
     vec1 = pd.DataFrame()
     # calculate the distance between first and last point
     vec1["x"] = sim_data.df["xIntPoint3"].subtract(sim_data.df["xIntPoint1"]).copy()
@@ -56,12 +58,17 @@ def int_check(sim_data: data.SimData, out_log: bool = True):
     vec1 = vec1.loc[:, ["cellI", "x", "y", "z"]]
 
     # log output
-    if out_log_int:
+    if out_log:
         out_log_int = log.IntLog()
         out_log_int.concat(vec1)
         out_log_int.write("log.int")
 
-def ds(sim_data: data.BFSData | data.NACAData, x_step: float, y_step: float, out: bool = False):
+    return vec1
+
+def ds(sim_data: data.BFSData | data.NACAData,
+       x_step: float,
+       y_step: float,
+       out: bool = False) -> tuple:
     # calculate ds difference for cells in x-dir
     if isinstance(sim_data, data.BFSData):
         sim_data.lambda_x["ds"] = ((sim_data.lambda_x["xCellCenter"] - sim_data.lambda_x["xIntPoint1"])

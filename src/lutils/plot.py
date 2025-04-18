@@ -1,27 +1,40 @@
 import pandas as pd
 import bisect
-import src.lutils.test as test
+from .utility_functions import *
+from .test import compare_profile
+from . import data
 import matplotlib.pyplot as plt
+from typing import Callable
 from abc import ABC, abstractmethod
 
 
 class SimPlot(ABC):
-    def __init__(self, test_obj: test.SimTest):
+    def __init__(self,
+                 test_obj: data.SimData):
         self._test = test_obj
         self._df = test_obj._df
     
     @abstractmethod
-    def plot_int_points(self, range_start, range_stop, filename: str):
+    def plot_int_points(self,
+                        range_start,
+                        range_stop,
+                        filename: str):
         pass
 
     def plot_ds(self):
         pass
     
-    def plot_profile(self, filename: str, simple_dat: str, hfdibrans_dat: str, profile: str,
-                     profile_value: float, field: str, grid: bool = False):
+    def plot_profile(self,
+                     filename: str,
+                     simple_dat: str,
+                     hfdibrans_dat: str,
+                     profile: str,
+                     profile_value: float,
+                     field: str,
+                     grid: bool = False):
         # get dataframes
-        simple, hfdibrans = self._test.compare_profile(simple_dat, hfdibrans_dat,
-                                                       profile, profile_value, out=True)
+        simple, hfdibrans = compare_profile(simple_dat, hfdibrans_dat,
+                                            profile, profile_value, out=True)
 
         # plot figure
         fig = plt.figure(figsize=(20, 12))
@@ -39,10 +52,14 @@ class SimPlot(ABC):
         return df.loc[lower:higher-1, :].copy()
     
 class BFSPlot(SimPlot):
-    def __init__(self, bfs_obj: test.BFSTest):
+    def __init__(self,
+                 bfs_obj: data.BFSData):
         super().__init__(bfs_obj)
 
-    def plot_int_points(self, filename: str, range_start: float = 0, range_stop: float = 1):
+    def plot_int_points(self,
+                        filename: str,
+                        range_start: float = 0,
+                        range_stop: float = 1):
         # select values based on input range
         df = self._values_in_range(self._df.sort_values(by="xCellCenter"),
                                    "xCellCenter", range_start, range_stop)
@@ -67,10 +84,15 @@ class BFSPlot(SimPlot):
 
 
 class NACAPlot(SimPlot):
-    def __init__(self, test_obj: test.NACATest):
+    def __init__(self,
+                 test_obj: data.NACAData):
         super().__init__(test_obj)
 
-    def plot_int_points(self, filename: str, func, range_start: float, range_stop: float):
+    def plot_int_points(self,
+                        filename: str,
+                        func: Callable,
+                        range_start: float,
+                        range_stop: float):
         # select values based on input range
         df = self._values_in_range(self._df.reset_index(drop=True),
                                    "yCellCenter", range_start, range_stop)
@@ -90,9 +112,12 @@ class NACAPlot(SimPlot):
         #~                 df.loc[i, "yCellCenter"]+self._df.loc[i, "ySurfNorm"], color="black")
         
         # plot naca outline
-        y = df["xIntPoint1"].sort_values().apply(func)
-        plt.plot(df["xIntPoint1"].sort_values(), y, color="black")
-        plt.plot(df["xIntPoint1"].sort_values(), -y, color="black")
+        self._outline(df["xIntPoint1"], func)
 
         plt.legend()
         fig.savefig(filename)
+
+    def _outline(self, s: pd.Series, func: Callable):
+        y = s.sort_values().apply(func)
+        plt.plot(s.sort_values(), y, color="black")
+        plt.plot(s.sort_values(), -y, color="black")
