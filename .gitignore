@@ -1,8 +1,9 @@
 tests/
-rewritten/
 logs/
 .vscode/
-src/lambda_utility/__pycache__/
 *.toml
 main.py
+lutils/__pycache__/
+lutils/core/__pycache__/
+lutils/plotting/__pycache__/
 *.png

@@ -1,5 +1,7 @@
+# external packages
 import pandas as pd
-from abc import ABC, abstractmethod
+from abc import ABC
+from typing import Union
 
 
 class SimData(ABC):
@@ -44,8 +46,10 @@ class BFSData(SimData):
         self.lambda_x = self.df[:n_cells_y-2].reset_index(drop=True).copy()
         self.lambda_y = self.df[n_cells_y:].reset_index(drop=True).copy()
     
-    def return_data(self):
-        return self.lambda_x, self.lambda_y
+    def return_data(self, split: bool = False) -> Union[pd.DataFrame, tuple]:
+        if split:
+            return self.lambda_x, self.lambda_y
+        return self.df
 
 
 class NACAData(SimData):
