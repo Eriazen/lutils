@@ -1,5 +1,6 @@
 tests/
 logs/
+plots/
 .vscode/
 *.toml
 main.py
