@@ -1,6 +1,6 @@
 import pandas as pd
 import bisect
-import src.lutils.test as test
+from . import test
 import matplotlib.pyplot as plt
 from abc import ABC, abstractmethod
 

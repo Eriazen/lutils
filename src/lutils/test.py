@@ -1,8 +1,8 @@
 import pandas as pd
 import numpy as np
 import bisect
-import src.lutils.data as data
-import src.lutils.log as log
+from . import data
+from . import log
 from abc import ABC, abstractmethod
 
 
@@ -13,10 +13,6 @@ class SimTest(ABC):
 
     @abstractmethod
     def ds(self):
-        pass
-
-    @abstractmethod
-    def int_check(self):
         pass
 
     def compare_profile(self, simple_dat: str, hfdibrans_dat: str, profile: str,
