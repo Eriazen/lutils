@@ -8,16 +8,11 @@ from .plot_utils import *
 
 
 def plot_profile(filename: str,
-                 simple_dat: str,
-                 hfdibrans_dat: str,
+                 simple: str,
+                 hfdibrans: str,
                  profile: str,
-                 profile_value: float,
                  field: str,
                  grid: bool = False) -> None:
-    # get dataframes
-    simple, hfdibrans = compare_profile(simple_dat, hfdibrans_dat,
-                                        profile, profile_value)
-
     # plot figure
     fig = plt.figure(figsize=(20, 12))
     plt.scatter(simple[profile], simple[field], label="simple")
