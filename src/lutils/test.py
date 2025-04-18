@@ -1,15 +1,15 @@
 import pandas as pd
 import numpy as np
 import bisect
-import src.lambda_utility.data as data
-import src.lambda_utility.log as log
+import src.lutils.data as data
+import src.lutils.log as log
 from abc import ABC, abstractmethod
 
 
 class SimTest(ABC):
-    def __init__(self, load_path: str, int_info: str):
+    def __init__(self, load_path: str):
         self._load_path = load_path
-        self._df = data.SimData(self._load_path, int_info).return_data()
+        self._df = data.SimData(self._load_path).return_data()
 
     @abstractmethod
     def ds(self):
@@ -107,10 +107,10 @@ class SimTest(ABC):
 
 
 class BFSTest(SimTest):
-    def __init__(self, load_path: str, int_info: str, n_cells_y: int):
-        super().__init__(load_path, int_info)
+    def __init__(self, load_path: str, n_cells_y: int):
+        super().__init__(load_path)
         # load data
-        self._bfs = data.BfsData(self._load_path, int_info, n_cells_y)
+        self._bfs = data.BFSData(self._load_path, n_cells_y)
 
     def ds(self, x_step: float, y_step: float, out: bool = False):
         # calculate ds difference for cells in x-dir
@@ -142,8 +142,8 @@ class BFSTest(SimTest):
 
     
 class NACATest(SimTest):
-    def __init__(self, load_path: str, int_info: str):
-        super().__init__(load_path, int_info)
+    def __init__(self, load_path: str):
+        super().__init__(load_path)
 
     def ds(self):
         pass

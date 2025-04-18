@@ -2,7 +2,7 @@ tests/
 rewritten/
 logs/
 .vscode/
-src/lambda_utility/__pycache__/
+src/lutils/__pycache__/
 *.toml
 main.py
 *.png
