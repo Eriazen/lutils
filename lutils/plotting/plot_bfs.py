@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from .plot_utils import *
+import pandas as pd
 
 
 def bfs_int_points(path: str,

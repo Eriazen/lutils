@@ -2,7 +2,7 @@
 import pandas as pd
 from abc import ABC, abstractmethod
 #internal packages
-from ..utils import *
+from ..utils import check_dir
 
 
 class Log(ABC):

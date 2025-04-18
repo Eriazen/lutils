@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 from typing import Callable, Union
 # internal packages
 from ..core import data
-from ..utils import *
-from .plot_utils import *
+from ..utils import check_dir
+from plot_utils import values_in_range
 from .plot_bfs import *
 from .plot_naca import *
 
@@ -29,7 +29,7 @@ def plot_profile(filename: str,
     plt.close(fig)
 
 
-def plot_int_points(data_obj: Union[data.BFSData, data.NACAData],
+def plot_int_points(data_object: Union[data.BFSData, data.NACAData],
                     filename: str,
                     range_start: float = 0,
                     range_stop: float = 1,
@@ -37,17 +37,17 @@ def plot_int_points(data_obj: Union[data.BFSData, data.NACAData],
     # check if dir exists
     check_dir(plot_path)
     
-    if isinstance(data_obj, data.BFSData):
+    if isinstance(data_object, data.BFSData):
         # select values based on input range
-        df = values_in_range(data_obj.df.sort_values(by="xCellCenter"),
+        df = values_in_range(data_object.df.sort_values(by="xCellCenter"),
                                     "xCellCenter", range_start, range_stop)
         df = df.reset_index(drop=True)
-        # plot figure
+        # plot
         bfs_int_points(plot_path+filename, df, range_stop)
-    elif isinstance(data_obj, data.NACAData):
+    elif isinstance(data_object, data.NACAData):
         # select values based on input range
-        df = values_in_range(data_obj.df, "yCellCenter", range_start, range_stop)
-        # plot figure
+        df = values_in_range(data_object.df, "yCellCenter", range_start, range_stop)
+        # plot
         naca_int_points(plot_path+filename, df, func)
     else:
-        print("Incorrect data object as input")
+        print("Incorrect data object input.")

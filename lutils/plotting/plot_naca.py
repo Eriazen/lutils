@@ -1,17 +1,19 @@
 # external packages
 import matplotlib.pyplot as plt
 from typing import Callable
+import pandas as pd
 # internal packages
-from .plot_utils import *
+from .plot_utils import outline
 
 
 def naca_int_points(path: str,
-                    df: str,
+                    df: pd.DataFrame,
                     func: Callable[[], float]) -> None:
     # plot figure
     fig = plt.figure(figsize=(20, 12))
     #~ ax = plt.gca()
     #~ ax.set_aspect("equal")
+
     # plot points
     plt.scatter(df["xCellCenter"], df["yCellCenter"], marker="s", label="C")
     plt.scatter(df["xIntPoint1"], df["yIntPoint1"], label="1")

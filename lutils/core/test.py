@@ -6,6 +6,7 @@ from . import log
 from . import data
 from .test_utils import *
 
+
 # compares the field profile of simple and hfdibrans simulations
 def compare_profile(simple_dat: str,
                     hfdibrans_dat: str,
@@ -76,19 +77,20 @@ def ds(sim_data: Union[data.BFSData, data.NACAData],
        y_step: float) -> tuple:
     # calculate ds difference for cells in x-dir
     if isinstance(sim_data, data.BFSData):
-        sim_data.lambda_x["ds"] = ((sim_data.lambda_x["xCellCenter"] - sim_data.lambda_x["xIntPoint1"])
-                                -(sim_data.lambda_x["xCellCenter"] - x_step))
+        lambda_x, lambda_y = sim_data.return_data(split=True)
+        lambda_x["ds"] = ((lambda_x["xCellCenter"] - lambda_x["xIntPoint1"])
+                                -(lambda_x["xCellCenter"] - x_step))
         # reduce dataframe
-        x = sim_data.lambda_x.loc[:, ["cellI", "ds"]]
+        x = lambda_x.loc[:, ["cellI", "ds"]]
         # replace and drop empty rows
         x["ds"] = isclose_replace(x["ds"])
         x = x.dropna()
 
         # calculate ds difference for cells in y-dir
-        sim_data.lambda_y["ds"] = ((sim_data.lambda_y["yCellCenter"] - sim_data.lambda_y["yIntPoint1"])
-                                    -(sim_data.lambda_y["yCellCenter"] - y_step))
+        lambda_y["ds"] = ((lambda_y["yCellCenter"] - lambda_y["yIntPoint1"])
+                                    -(lambda_y["yCellCenter"] - y_step))
         # reduce dataframe
-        y = sim_data.lambda_y.loc[:, ["cellI", "ds"]]
+        y = lambda_y.loc[:, ["cellI", "ds"]]
         # replace and drop empty rows
         y["ds"] = isclose_replace(y["ds"])
         y = y.dropna()
@@ -101,9 +103,7 @@ def ds(sim_data: Union[data.BFSData, data.NACAData],
             out_log.write("log.ds")
 
         return x, y
-    
     elif isinstance(sim_data, data.NACAData):
         pass
-
     else:
-        pass
+        print("Incorrect data object input.")

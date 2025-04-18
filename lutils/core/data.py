@@ -11,7 +11,7 @@ class SimData(ABC):
         self._data_manipulation()
     
     def return_data(self) -> pd.DataFrame:
-        return self.df
+        return self.df.copy()
 
     def _data_manipulation(self) -> None:
         # split cellCenter into xyz coordinates
@@ -46,10 +46,11 @@ class BFSData(SimData):
         self.lambda_x = self.df[:n_cells_y-2].reset_index(drop=True).copy()
         self.lambda_y = self.df[n_cells_y:].reset_index(drop=True).copy()
     
-    def return_data(self, split: bool = False) -> Union[pd.DataFrame, tuple]:
+    def return_data(self,
+                    split: bool = False) -> Union[pd.DataFrame, tuple]:
         if split:
-            return self.lambda_x, self.lambda_y
-        return self.df
+            return self.lambda_x.copy(), self.lambda_y.copy()
+        return self.df.copy()
 
 
 class NACAData(SimData):
