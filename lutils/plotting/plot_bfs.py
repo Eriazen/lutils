@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 from .plot_utils import *
 
+
 def bfs_int_points(path: str,
                    df: pd.DataFrame,
                    range_stop: float) -> None:

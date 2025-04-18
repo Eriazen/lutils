@@ -6,7 +6,7 @@ from . import log
 from . import data
 from .test_utils import *
 
-# compares the field profile of simple and hfdibrans
+# compares the field profile of simple and hfdibrans simulations
 def compare_profile(simple_dat: str,
                     hfdibrans_dat: str,
                     profile: str,
@@ -33,6 +33,7 @@ def compare_profile(simple_dat: str,
 
     return simple, hfdibrans
 
+# compares surface normals to interpolations points, returns unsatisfactory cells
 def int_check(sim_data: data.SimData,
               out_log: bool = True) -> pd.DataFrame:
     vec1 = pd.DataFrame()
@@ -69,6 +70,7 @@ def int_check(sim_data: data.SimData,
 
     return vec1
 
+# checks distance to wall, returns unsatisfactory cells
 def ds(sim_data: Union[data.BFSData, data.NACAData],
        x_step: float,
        y_step: float) -> tuple:

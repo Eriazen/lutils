@@ -5,7 +5,6 @@ from typing import Callable
 from .plot_utils import *
 
 
-
 def naca_int_points(path: str,
                     df: str,
                     func: Callable[[], float]) -> None:
