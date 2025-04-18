@@ -1,7 +1,10 @@
+# external packages
 import pandas as pd
+from typing import Union
+# internal packages
 from . import log
 from . import data
-from .utility_functions import *
+from .test_utils import *
 
 # compares the field profile of simple and hfdibrans
 def compare_profile(simple_dat: str,
@@ -33,10 +36,11 @@ def compare_profile(simple_dat: str,
 def int_check(sim_data: data.SimData,
               out_log: bool = True) -> pd.DataFrame:
     vec1 = pd.DataFrame()
+    df = sim_data.return_data()
     # calculate the distance between first and last point
-    vec1["x"] = sim_data.df["xIntPoint3"].subtract(sim_data.df["xIntPoint1"]).copy()
-    vec1["y"] = sim_data.df["yIntPoint3"].subtract(sim_data.df["yIntPoint1"]).copy()
-    vec1["z"] = sim_data.df["zIntPoint3"].subtract(sim_data.df["zIntPoint1"]).copy()
+    vec1["x"] = df["xIntPoint3"].subtract(df["xIntPoint1"]).copy()
+    vec1["y"] = df["yIntPoint3"].subtract(df["yIntPoint1"]).copy()
+    vec1["z"] = df["zIntPoint3"].subtract(df["zIntPoint1"]).copy()
     
     # calculate normal
     mag = mag(vec1)
@@ -44,7 +48,7 @@ def int_check(sim_data: data.SimData,
     vec1 = vec1.div(mag, axis=0)
 
     # get surface normal
-    vec2 = sim_data.df.loc[:, ["xSurfNorm", "ySurfNorm", "zSurfNorm"]].copy()
+    vec2 = df.loc[:, ["xSurfNorm", "ySurfNorm", "zSurfNorm"]].copy()
     # rename columns
     vec2 = vec2.rename(columns={"xSurfNorm": "x", "ySurfNorm": "y", "zSurfNorm": "z"})
     # compare normals
@@ -54,7 +58,7 @@ def int_check(sim_data: data.SimData,
     vec1 = isclose_replace(vec1)
     vec1 = vec1.loc[:, ["x", "y", "z"]].dropna(how="all")
     # concatenate cell ids and restructure
-    vec1 = vec1.join(sim_data.df["cellI"], how="left")
+    vec1 = vec1.join(df["cellI"], how="left")
     vec1 = vec1.loc[:, ["cellI", "x", "y", "z"]]
 
     # log output
@@ -65,10 +69,9 @@ def int_check(sim_data: data.SimData,
 
     return vec1
 
-def ds(sim_data: data.BFSData | data.NACAData,
+def ds(sim_data: Union[data.BFSData, data.NACAData],
        x_step: float,
-       y_step: float,
-       out: bool = False) -> tuple:
+       y_step: float) -> tuple:
     # calculate ds difference for cells in x-dir
     if isinstance(sim_data, data.BFSData):
         sim_data.lambda_x["ds"] = ((sim_data.lambda_x["xCellCenter"] - sim_data.lambda_x["xIntPoint1"])

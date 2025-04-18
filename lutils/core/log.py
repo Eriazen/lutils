@@ -4,7 +4,8 @@ from abc import ABC, abstractmethod
 
 
 class Log(ABC):
-    def __init__(self, log_dir="./logs/"):
+    def __init__(self,
+                 log_dir="./logs/") -> None:
         self._log = pd.Series()
         self._log_dir = log_dir
 
@@ -13,25 +14,28 @@ class Log(ABC):
             os.makedirs(self._log_dir)
 
     # concatenate info onto log
-    def concat(self, data: pd.Series):
+    def concat(self,
+               data: pd.Series) -> None:
         self._log = pd.concat([self._log, data], ignore_index=True)
         self._log = self._log.dropna(axis=1)
 
     # convert cell ids from float to int
-    def _cellid_to_int(self):
+    def _cellid_to_int(self) -> None:
         if "cellI" in self._log:
             self._log["cellI"] = self._log["cellI"].astype(int)
     
     @abstractmethod
-    def write(self):
+    def write(self) -> None:
         pass
 
 
 class DsLog(Log):
-    def __init__(self, log_dir="./logs/"):
+    def __init__(self,
+                 log_dir="./logs/"):
         super().__init__(log_dir)
 
-    def write(self, file: str):
+    def write(self,
+              file: str) -> None:
         self._cellid_to_int()
         # convert dataframe to string
         out = self._log.to_string(index=False)
@@ -43,11 +47,12 @@ class DsLog(Log):
 
 
 class IntLog(Log):
-
-    def __init__(self, log_dir="./logs/"):
+    def __init__(self,
+                 log_dir="./logs/") -> None:
         super().__init__(log_dir)
 
-    def write(self, file: str):
+    def write(self,
+              file: str) -> None:
         self._cellid_to_int()
         # covert dataframe to string
         out = self._log.to_string(index=False)
@@ -59,10 +64,12 @@ class IntLog(Log):
 
 
 class ProfileLog(Log):
-    def __init__(self, log_dir="./logs/"):
+    def __init__(self,
+                 log_dir="./logs/") -> None:
         super().__init__(log_dir)
 
-    def write(self, file: str):
+    def write(self,
+              file: str) -> None:
         self._cellid_to_int()
         # covert dataframe to string
         out = self._log.to_string(index=False)
