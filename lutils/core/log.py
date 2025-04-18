@@ -1,6 +1,8 @@
+# external packages
 import pandas as pd
-import os
 from abc import ABC, abstractmethod
+#internal packages
+from ..utils import *
 
 
 class Log(ABC):
@@ -10,8 +12,7 @@ class Log(ABC):
         self._log_dir = log_dir
 
         # check and create directory
-        if not os.path.exists(self._log_dir):
-            os.makedirs(self._log_dir)
+        check_dir(self._log_dir)
 
     # concatenate info onto log
     def concat(self,

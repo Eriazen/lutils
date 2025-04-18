@@ -2,8 +2,8 @@
 import matplotlib.pyplot as plt
 from typing import Callable, Union
 # internal packages
-from ..core.test import compare_profile
 from ..core import data
+from ..utils import *
 from .plot_utils import *
 
 
@@ -13,6 +13,7 @@ def plot_profile(filename: str,
                  profile: str,
                  field: str,
                  grid: bool = False) -> None:
+    check_dir("./plots")
     # plot figure
     fig = plt.figure(figsize=(20, 12))
     plt.scatter(simple[profile], simple[field], label="simple")
@@ -30,6 +31,8 @@ def plot_int_points(data_obj: Union[data.BFSData, data.NACAData],
                     range_start: float = 0,
                     range_stop: float = 1,
                     func: Callable = None):
+    check_dir("./plots")
+    
     if isinstance(data_obj, data.BFSData):
         # select values based on input range
         df = values_in_range(data_obj.df.sort_values(by="xCellCenter"),
