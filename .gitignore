@@ -3,6 +3,5 @@ rewritten/
 logs/
 .vscode/
 lutils/__pycache__/
-*.toml
 main.py
 *.png
