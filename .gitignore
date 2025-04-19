@@ -6,3 +6,5 @@ lutils/__pycache__/
 lutils/core/__pycache__/
 lutils/plotting/__pycache__/
 *.png
+*.egg*
+dist/
