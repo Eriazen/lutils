@@ -7,6 +7,7 @@ class SimData(ABC):
         self._df = pd.read_csv(load_path)
         self._data_manipulation()
     
+    @abstractmethod
     def return_data(self):
         return self._df
 
@@ -41,7 +42,15 @@ class BFSData(SimData):
         self.lambda_x = self._df[:n_cells_y-2].reset_index(drop=True).copy()
         self.lambda_y = self._df[n_cells_y:].reset_index(drop=True).copy()
 
+    def return_data(self, split: bool = False):
+        if split:
+            return self.lambda_x, self.lambda_y
+        return super().return_data()
+
 
 class NACAData(SimData):
     def __init__(self, load_path):
         super().__init__(load_path)
+
+    def return_data(self):
+        return super().return_data()
