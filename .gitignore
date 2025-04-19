@@ -2,7 +2,6 @@ tests/
 logs/
 plots/
 .vscode/
-*.toml
 main.py
 lutils/__pycache__/
 lutils/core/__pycache__/
