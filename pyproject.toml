@@ -15,7 +15,7 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/pypa/sampleproject"
+Homepage = "https://github.com/Eriazen/lutils"
 
 [tool.setuptools.packages]
 find = {}
