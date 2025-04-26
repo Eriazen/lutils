@@ -106,4 +106,4 @@ def ds(sim_data: Union[data.BFSData, data.NACAData],
     elif isinstance(sim_data, data.NACAData):
         pass
     else:
-        print("Incorrect data object input.")
+        raise TypeError("Incorrect data object input.")

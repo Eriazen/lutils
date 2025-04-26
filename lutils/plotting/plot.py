@@ -54,4 +54,4 @@ def plot_int_points(data_object: Union[data.BFSData, data.NACAData],
         # plot
         naca_int_points(plot_path+filename, df, func)
     else:
-        print("Incorrect data object input.")
+        raise TypeError("Incorrect data object input.")
