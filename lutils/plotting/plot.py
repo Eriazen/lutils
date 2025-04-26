@@ -4,7 +4,7 @@ from typing import Callable, Union
 # internal packages
 from ..core import data
 from ..utils import check_dir
-from plot_utils import values_in_range
+from .plot_utils import values_in_range
 from .plot_bfs import *
 from .plot_naca import *
 
