@@ -15,13 +15,17 @@ def plot_profile(filename: str,
                  hfdibrans: str,
                  profile: str,
                  field: str,
+                 title: str = None,
                  grid: bool = False) -> None:
     check_dir(plot_path)
     # plot figure
     fig = plt.figure(figsize=(20, 12))
     plt.scatter(simple[profile], simple[field], label="simple")
     plt.scatter(hfdibrans[profile], hfdibrans[field], label="hfdibrans")
-    plt.legend()
+    plt.legend(fontsize=18)
+    plt.xlabel(profile, fontsize=18)
+    plt.ylabel(field, fontsize=18)
+    plt.title(title, fontsize=22)
     if grid:
         plt.grid()
     # save figure
