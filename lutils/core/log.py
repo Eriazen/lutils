@@ -32,7 +32,7 @@ class Log(ABC):
 
 class DsLog(Log):
     def __init__(self,
-                 log_dir="./logs/"):
+                 log_dir="./logs/") -> None:
         super().__init__(log_dir)
 
     def write(self,

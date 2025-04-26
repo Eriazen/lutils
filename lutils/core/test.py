@@ -12,7 +12,7 @@ def compare_profile(simple_dat: str,
                     hfdibrans_dat: str,
                     profile: str,
                     profile_value: float,
-                    out_log: bool = True) -> tuple:
+                    out_log: bool = True) -> tuple[pd.DataFrame, pd.DataFrame]:
     # read data
     simple = pd.read_csv(simple_dat)
     hfdibrans = pd.read_csv(hfdibrans_dat)
@@ -74,7 +74,7 @@ def int_check(sim_data: data.SimData,
 # checks distance to wall, returns unsatisfactory cells
 def ds(sim_data: Union[data.BFSData, data.NACAData],
        x_step: float,
-       y_step: float) -> tuple:
+       y_step: float) -> tuple[pd.DataFrame, pd.DataFrame]:
     # calculate ds difference for cells in x-dir
     if isinstance(sim_data, data.BFSData):
         lambda_x, lambda_y = sim_data.return_data(split=True)

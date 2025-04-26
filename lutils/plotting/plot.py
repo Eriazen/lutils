@@ -37,7 +37,7 @@ def plot_int_points(data_object: Union[data.BFSData, data.NACAData],
                     filename: str,
                     range_start: float = 0,
                     range_stop: float = 1,
-                    func: Callable[[], float] = None):
+                    func: Callable[[], float] = None) -> None:
     # check if dir exists
     check_dir(plot_path)
     
