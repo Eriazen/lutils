@@ -11,8 +11,8 @@ from .plot_naca import *
 plot_path = "./plots/"
 
 def plot_profile(filename: str,
-                 simple: str,
-                 hfdibrans: str,
+                 simple: pd.DataFrame,
+                 hfdibrans: pd.DataFrame,
                  profile: str,
                  field: str,
                  title: str = None,
