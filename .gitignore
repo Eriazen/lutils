@@ -8,3 +8,4 @@ lutils/plotting/__pycache__/
 *.png
 *.egg*
 dist/
+.venv/
