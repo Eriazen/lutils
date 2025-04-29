@@ -29,7 +29,7 @@ def magnitude(df: pd.DataFrame) -> pd.Series:
 # replace values close to zero with nan
 def isclose_replace(data: Union[pd.DataFrame, pd.Series]) -> Union[pd.DataFrame, pd.Series]:
     if isinstance(data, pd.DataFrame):
-        data = data.applymap(lambda x: np.nan if np.isclose(x, 0) else x, na_action="ignore")
+        data = data.map(lambda x: np.nan if np.isclose(x, 0) else x, na_action="ignore")
     elif isinstance(data, pd.Series):
         data = data.apply(lambda x: np.nan if np.isclose(x, 0) else x)
     return data

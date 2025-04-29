@@ -9,3 +9,4 @@ lutils/plotting/__pycache__/
 *.egg*
 dist/
 .venv/
+build/
