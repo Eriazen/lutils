@@ -36,7 +36,7 @@ def compare_profile(simple_dat: str,
 
 # compares surface normals to interpolations points, returns unsatisfactory cells
 def int_check(sim_data: data.SimData,
-              out_log: bool = True) -> pd.DataFrame:
+              out_log: bool = False) -> pd.DataFrame:
     vec1 = pd.DataFrame()
     df = sim_data.return_data()
     # calculate the distance between first and last point
@@ -45,7 +45,7 @@ def int_check(sim_data: data.SimData,
     vec1["z"] = df["zIntPoint3"].subtract(df["zIntPoint1"]).copy()
     
     # calculate normal
-    mag = mag(vec1)
+    mag = magnitude(vec1)
     # normalize vector
     vec1 = vec1.div(mag, axis=0)
 
@@ -74,7 +74,8 @@ def int_check(sim_data: data.SimData,
 # checks distance to wall, returns unsatisfactory cells
 def ds(sim_data: Union[data.BFSData, data.NACAData],
        x_step: float,
-       y_step: float) -> tuple[pd.DataFrame, pd.DataFrame]:
+       y_step: float,
+       out_log: bool = False) -> tuple[pd.DataFrame, pd.DataFrame]:
     # calculate ds difference for cells in x-dir
     if isinstance(sim_data, data.BFSData):
         lambda_x, lambda_y = sim_data.return_data(split=True)

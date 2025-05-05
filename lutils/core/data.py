@@ -30,7 +30,7 @@ class SimData(ABC):
         # add cell ids
         data = data.join(self.df["cellI"])
         # strip brackets from all points
-        data = data.applymap(lambda x: x.strip("()") if isinstance(x, str) else x, na_action="ignore")
+        data = data.map(lambda x: x.strip("()") if isinstance(x, str) else x, na_action="ignore")
         # convert from string to number
         data = data.apply(pd.to_numeric)
         # save as attribute

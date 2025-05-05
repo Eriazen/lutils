@@ -16,12 +16,14 @@ def plot_profile(filename: str,
                  profile: str,
                  field: str,
                  title: str = None,
+                 label1: str = "simple",
+                 label2: str = "hfdibrans",
                  grid: bool = False) -> None:
     check_dir(plot_path)
     # plot figure
     fig = plt.figure(figsize=(20, 12))
-    plt.scatter(simple[profile], simple[field], label="simple")
-    plt.scatter(hfdibrans[profile], hfdibrans[field], label="hfdibrans")
+    plt.scatter(simple[profile], simple[field], label=label1)
+    plt.scatter(hfdibrans[profile], hfdibrans[field], label=label2)
     plt.legend(fontsize=18)
     plt.xlabel(profile, fontsize=18)
     plt.ylabel(field, fontsize=18)
@@ -37,6 +39,8 @@ def plot_int_points(data_object: Union[data.BFSData, data.NACAData],
                     filename: str,
                     range_start: float = 0,
                     range_stop: float = 1,
+                    x_step: float = 1.0,
+                    y_step: float = 0.01,
                     func: Callable[[float], float] = None) -> None:
     # check if dir exists
     check_dir(plot_path)
@@ -47,7 +51,7 @@ def plot_int_points(data_object: Union[data.BFSData, data.NACAData],
                                     "xCellCenter", range_start, range_stop)
         df = df.reset_index(drop=True)
         # plot
-        bfs_int_points(plot_path+filename, df, range_stop)
+        bfs_int_points(plot_path+filename, df, range_stop, x_step, y_step)
     elif isinstance(data_object, data.NACAData):
         # select values based on input range
         df = values_in_range(data_object.df, "yCellCenter", range_start, range_stop)
