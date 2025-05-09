@@ -57,3 +57,8 @@ class NACAData(SimData):
     def __init__(self,
                  load_path) -> None:
         super().__init__(load_path)
+
+
+def get_data(file_path: str):
+    df = pd.read_csv(file_path)
+    return df.copy()

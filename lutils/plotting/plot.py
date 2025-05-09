@@ -4,12 +4,66 @@ from typing import Callable, Union
 # internal packages
 from ..core import data
 from ..utils import check_dir
-from .plot_utils import values_in_range
+from .plot_utils import values_in_range, Field
 from .plot_bfs import *
 from .plot_naca import *
 
 plot_path = "./plots/"
+class PlotPostProcessing:
+    def __init__(self,
+                 plot_dir: str = "./plots/") -> None:
+        self._plot_dir = plot_dir
+        self._plot_data = {}
 
+        check_dir(self._plot_dir)
+
+    def add_data(self,
+                 file_path: str,
+                 field_name: str,
+                 label: str) -> None:
+        self._plot_data[label] = Field(file_path, field_name)
+
+    def del_data(self,
+                 label: str) -> None:
+        del self._plot_data[label]
+
+    def set_params(self,
+                   profile_values: list):
+        self.profile_values = profile_values
+
+    def plot_profile(self,
+                     out_file_name: str,
+                     profile: str,
+                     profile_value: float,
+                     title: str = None,
+                     xlabel: str = None,
+                     ylabel: str = None,
+                     fig_id: Union[str, int] = None) -> None:
+        if fig_id != None:
+            figure = plt.figure(fig_id, figsize=(20, 12))
+        else:
+            figure = plt.figure(figsize=(20, 12))
+
+        if title != None:
+            plt.title(title, fontsize=22)
+
+        if xlabel != None:
+            plt.xlabel(xlabel, fontsize=18)
+
+        if ylabel != None:
+            plt.ylabel(ylabel, fontsize=18)
+
+        for key, value in self._plot_data.items():
+            value.trim_data(profile, profile_value)
+            plt.scatter(value.get_profile(profile), value.field, label=key)
+
+        figure.legend(fontsize=18)
+
+        try:
+            figure.savefig(self._plot_dir+out_file_name)
+        except:
+            raise TypeError("Invalid file format in {out_file_name}.")
+        
 def plot_profile(filename: str,
                  simple: pd.DataFrame,
                  hfdibrans: pd.DataFrame,
