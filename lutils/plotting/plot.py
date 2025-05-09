@@ -27,10 +27,6 @@ class PlotPostProcessing:
                  label: str) -> None:
         del self._plot_data[label]
 
-    def set_params(self,
-                   profile_values: list):
-        self.profile_values = profile_values
-
     def plot_profile(self,
                      out_file_name: str,
                      profile: str,
