@@ -39,10 +39,7 @@ class PlotPostProcessing:
                      xlabel: str = None,
                      ylabel: str = None,
                      fig_id: Union[str, int] = None) -> None:
-        if fig_id != None:
-            figure = plt.figure(fig_id, figsize=(20, 12))
-        else:
-            figure = plt.figure(figsize=(20, 12))
+        figure = self._fig_exists(fig_id)
 
         if title != None:
             plt.title(title, fontsize=22)
@@ -63,6 +60,13 @@ class PlotPostProcessing:
             figure.savefig(self._plot_dir+out_file_name)
         except:
             raise TypeError("Invalid file format in {out_file_name}.")
+        
+    def _fig_exists(self,
+                    fig_id: Union[str, int]):
+        if plt.fignum_exists(fig_id):
+            return plt.figure(fig_id)
+        else:
+            return plt.figure(figsize=(20, 12))
         
 def plot_profile(filename: str,
                  simple: pd.DataFrame,
