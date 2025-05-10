@@ -1,10 +1,10 @@
-from .data import BFSData, NACAData
+from .data import Field, InterpolationInfo
 from .log import IntLog, DsLog, ProfileLog
 from .test import compare_profile, int_check, ds
 
 __all__ = [
-    "BFSData",
-    "NACAData",
+    "Field",
+    "InterpolationInfo",
     "IntLog",
     "DsLog",
     "ProfileLog",

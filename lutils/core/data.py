@@ -1,64 +1,90 @@
 # external packages
 import pandas as pd
-from abc import ABC
-from typing import Union
+import bisect
 
 
-class SimData(ABC):
+class BaseDataClass:
     def __init__(self,
-                 load_path: str) -> None:
-        self.df = pd.read_csv(load_path)
+                 file_path: str) -> None:
+        self.data = pd.read_csv(file_path)
+
+    def get_data(self) -> pd.DataFrame:
+        return self.data.copy()
+
+    def get_value(self,
+                  value: str) -> pd.Series:
+        try:
+            return self.data[value]
+        except:
+            raise NameError("Invalid value name.")
+
+
+class Field(BaseDataClass):
+    def __init__(self,
+                 file_path: str) -> None:
+        super().__init__(file_path)
+
+    def get_trimmed(self,
+                    profile: str,
+                    across: str,
+                    profile_value: float) -> pd.DataFrame:
+        key = self._get_closest(self.get_value(across), profile_value)
+        df = self.data.loc[self.data[across] == key].copy()
+        df = df.sort_values(by=profile)
+        return df
+
+    def _get_closest(self,
+                     series: pd.Series,
+                     value: float) -> float:
+        lower = bisect.bisect_left(series.values, value)
+        return series[lower]
+
+
+class InterpolationInfo(BaseDataClass):
+    def __init__(self,
+                 file_path: str):
+        super().__init__(file_path)
         self._data_manipulation()
-    
-    def return_data(self) -> pd.DataFrame:
-        return self.df.copy()
+
+    def get_split(self,
+                  number_of_cells: int):
+        df1 = self.data.loc[:number_of_cells-2, :].reset_index(drop=True)
+        df2 = self.data.loc[number_of_cells:, :].reset_index(drop=True)
+        return df1.copy(), df2.copy()
+
 
     def _data_manipulation(self) -> None:
         # split cellCenter into xyz coordinates
-        data = self.df["cellCenter"].str.split(expand=True).rename(columns={
+        df = self.data["cellCenter"].str.split(expand=True).rename(columns={
             0: "xCellCenter", 1: "yCellCenter", 2: "zCellCenter"})
         # repeat for intPoints
-        data = data.join(self.df["intPoints"].str.split(expand=True)).rename(columns={
+        df = df.join(self.data["intPoints"].str.split(expand=True)).rename(columns={
             0: "xIntPoint1", 1: "yIntPoint1", 2: "zIntPoint1",
             3: "xIntPoint2", 4: "yIntPoint2", 5: "zIntPoint2",
             6: "xIntPoint3", 7: "yIntPoint3", 8: "zIntPoint3"})
         # repeat for surface normal
-        data = data.join(self.df["surfNorm"].str.split(expand=True)).rename(columns={
+        df = df.join(self.data["surfNorm"].str.split(expand=True)).rename(columns={
             0: "xSurfNorm", 1: "ySurfNorm", 2: "zSurfNorm"})
         # strip number of interpolation points
-        data["xIntPoint1"] = data["xIntPoint1"].str.lstrip("3")
+        df["xIntPoint1"] = df["xIntPoint1"].str.lstrip("3")
         # add cell ids
-        data = data.join(self.df["cellI"])
+        df = df.join(self.data["cellI"])
         # strip brackets from all points
-        data = data.map(lambda x: x.strip("()") if isinstance(x, str) else x, na_action="ignore")
+        df = df.map(lambda x: x.strip("()") if isinstance(x, str) else x, na_action="ignore")
         # convert from string to number
-        data = data.apply(pd.to_numeric)
+        df = df.apply(pd.to_numeric)
         # save as attribute
-        self.df = data.copy()
+        self.data = df.copy()
 
 
-class BFSData(SimData):
+class Simulation:
     def __init__(self,
-                 load_path: str,
-                 n_cells_y: int) -> None:
-        super().__init__(load_path)
-        # split dataframe into two frames based on geometry
-        self.lambda_x = self.df[:n_cells_y-2].reset_index(drop=True).copy()
-        self.lambda_y = self.df[n_cells_y:].reset_index(drop=True).copy()
-    
-    def return_data(self,
-                    split: bool = False) -> Union[pd.DataFrame, tuple[pd.DataFrame, pd.DataFrame]]:
-        if split:
-            return self.lambda_x.copy(), self.lambda_y.copy()
-        return self.df.copy()
+                 file_path: str,
+                 label: str) -> None:
+        self.field = Field(file_path)
+        self.interpolation_info = InterpolationInfo(file_path)
+        self.label = label
 
+    def __str__(self) -> str:
+        return self.label
 
-class NACAData(SimData):
-    def __init__(self,
-                 load_path) -> None:
-        super().__init__(load_path)
-
-
-def get_data(file_path: str):
-    df = pd.read_csv(file_path)
-    return df.copy()
