@@ -1,14 +1,11 @@
-from .data import Field, InterpolationInfo
-from .log import IntLog, DsLog, ProfileLog
-from .test import compare_profile, int_check, ds
+from .data import Field, InterpolationInfo, Simulation
+from .test import compare_profiles, int_check, ds
 
 __all__ = [
     "Field",
     "InterpolationInfo",
-    "IntLog",
-    "DsLog",
-    "ProfileLog",
-    "compare_profile",
+    "Simulation",
+    "compare_profiles",
     "int_check",
     "ds"
 ]
