@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from ..utils import check_dir
 
 
-class Log(ABC):
+class BaseLogClass(ABC):
     def __init__(self,
                  log_dir="./logs/") -> None:
         self._log = pd.Series()
@@ -26,11 +26,12 @@ class Log(ABC):
             self._log["cellI"] = self._log["cellI"].astype(int)
     
     @abstractmethod
-    def write(self) -> None:
+    def write(self,
+              file: str) -> None:
         pass
 
 
-class DsLog(Log):
+class DsLog(BaseLogClass):
     def __init__(self,
                  log_dir="./logs/") -> None:
         super().__init__(log_dir)
@@ -47,7 +48,7 @@ class DsLog(Log):
             f.write("\nTotal number of inconsistent cells: %i" % self._log.shape[0])
 
 
-class IntLog(Log):
+class IntLog(BaseLogClass):
     def __init__(self,
                  log_dir="./logs/") -> None:
         super().__init__(log_dir)
@@ -64,7 +65,7 @@ class IntLog(Log):
             f.write("\nTotal number of inconsistent cells: %i" % self._log.shape[0])
 
 
-class ProfileLog(Log):
+class ProfileLog(BaseLogClass):
     def __init__(self,
                  log_dir="./logs/") -> None:
         super().__init__(log_dir)

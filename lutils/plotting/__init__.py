@@ -1,8 +1,6 @@
-from .plot import plot_profile, plot_int_points, PlotPostProcessing
+from .plot import PlotPostProcessing
 
 
 __all__ = [
-    "plot_profile",
-    "plot_int_points",
     "PlotPostProcessing"
 ]

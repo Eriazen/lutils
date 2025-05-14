@@ -1,5 +1,6 @@
-from .data import Field, InterpolationInfo, Simulation
+from .data import Field, InterpolationInfo
 from .test import compare_profiles, int_check, ds
+from .sim import Simulation
 
 __all__ = [
     "Field",

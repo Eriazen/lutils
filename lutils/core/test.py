@@ -3,7 +3,7 @@ import pandas as pd
 from typing import Union
 # internal packages
 from . import log
-from .data import Simulation
+from .sim import Simulation
 from .test_utils import *
 
 

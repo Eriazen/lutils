@@ -14,7 +14,7 @@ class BaseDataClass:
     def get_value(self,
                   value: str) -> pd.Series:
         try:
-            return self.data[value]
+            return self.data.loc[:, value]
         except:
             raise NameError("Invalid value name.")
 
@@ -37,7 +37,7 @@ class Field(BaseDataClass):
                      series: pd.Series,
                      value: float) -> float:
         lower = bisect.bisect_left(series.values, value)
-        return series[lower]
+        return series.loc[lower]
 
 
 class InterpolationInfo(BaseDataClass):
@@ -75,16 +75,3 @@ class InterpolationInfo(BaseDataClass):
         df = df.apply(pd.to_numeric)
         # save as attribute
         self.data = df.copy()
-
-
-class Simulation:
-    def __init__(self,
-                 file_path: str,
-                 label: str) -> None:
-        self.field = Field(file_path)
-        self.interpolation_info = InterpolationInfo(file_path)
-        self.label = label
-
-    def __str__(self) -> str:
-        return self.label
-

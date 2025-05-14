@@ -5,41 +5,7 @@ import pandas as pd
 import bisect
 from typing import Callable, Union
 #internal packages
-from ..core.data import get_data
 from ..core.test_utils import get_closest
-
-
-class Field:
-    def __init__(self,
-                 file_path: str,
-                 field_name: str):
-        data = get_data(file_path)
-
-        self.x = data["x"].copy().reset_index(drop=True)
-        self.y = data["y"].copy().reset_index(drop=True)
-        self.z = data["z"].copy().reset_index(drop=True)
-        self.field = data[field_name].copy().reset_index(drop=True)
-
-    def get_profile(self,
-                    profile: str) -> pd.Series:
-
-        if profile == "x":
-            return self.x
-        elif profile == "y":
-            return self.y
-        elif profile == "z":
-            return self.z
-        else:
-            raise TypeError("Incorrect profile value. Valid inputs are [x, y, z].")
-
-    def trim_data(self,
-                  profile: str,
-                  profile_value: float):
-        key = get_closest(self.x, profile_value)
-        index = self.x.loc[self.x == key].index
-        
-        self.y = self.y.loc[index]
-        self.field = self.field.loc[index]
 
 
 # returns rows from df corresponding to input value
