@@ -39,6 +39,12 @@ class Simulation:
         except:
             raise ValueError("No field to delete.")
 
+    def update_field(self,
+                     name: str,
+                     column: Union[str, int],
+                     correction: float) -> None:
+        self.fields[name].update_data(column, correction)
+
     def add_int_info(self,
                      file_path: str,
                      name: str) -> None:
