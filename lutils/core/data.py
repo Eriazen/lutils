@@ -1,6 +1,7 @@
 # external packages
 import pandas as pd
 import bisect
+from typing import Union
 
 
 class BaseDataClass:
@@ -10,6 +11,11 @@ class BaseDataClass:
 
     def get_data(self) -> pd.DataFrame:
         return self.data.copy()
+
+    def update_data(self,
+                    column: Union[str, int],
+                    correction: float) -> None:
+        self.data[column] = self.data[column]*correction
 
     def get_value(self,
                   value: str) -> pd.Series:
