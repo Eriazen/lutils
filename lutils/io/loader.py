@@ -5,7 +5,14 @@ from .parser import parse_internal_field
 
 def load_internal_field(case_path: str,
                         file_path: str,
-                        fields: list) -> tuple[np.ndarray, np.ndarray]:
+                        fields: list[str]) -> tuple[np.ndarray, np.ndarray]:
+    '''
+    Loads parsed OpenFOAM data into NumPy arrays.
+
+    Returns:
+        - coords: array of coordinate values
+        - values: array of specified fields
+    '''
     header, data = parse_internal_field(case_path, file_path)
 
     idx = []

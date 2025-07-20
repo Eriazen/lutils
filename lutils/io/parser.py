@@ -5,7 +5,7 @@ import numpy as np
 def parse_internal_field(case_path: str,
                          file_path: str) -> tuple[list[str], np.ndarray]:
     '''
-    Parses a CSV-style file output from readAndWrite functions into np.ndarray.
+    Parses a CSV-style file output from readAndWrite functions into Python.
 
     Returns:
         - header: list of column names
