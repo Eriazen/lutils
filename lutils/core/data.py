@@ -60,24 +60,7 @@ class FoamCase:
         del self.fields[field_name]
 
 
-class BaseDataClass:
-    '''
-    Base class used to implement specific data classes and class functions.
-    '''
-    def __init__(self,
-                 case_path: str,
-                 file_path: str) -> None:
-        '''
-        Initializes the BaseDataClass
-
-        Parameters:
-            - case_path: path to OpenFOAM case folder
-            - file_path: path to file in case folder
-        '''
-        self._internal_field = load_internal_field(case_path, file_path)
-
-
-class FieldData(BaseDataClass):
+class FieldData:
     '''
     Stores the field data loaded from OpenFOAM files.
     '''
@@ -93,7 +76,7 @@ class FieldData(BaseDataClass):
             - file_path: path to file in case folder
             - field_name: str key of desired field
         '''
-        super().__init__(case_path, file_path)
+        self._internal_field = load_internal_field(case_path, file_path)
 
         self.name = field_name
         keys = ['x', 'y', 'z', self.name]
