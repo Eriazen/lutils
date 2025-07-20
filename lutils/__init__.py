@@ -1,2 +1,4 @@
 from .core import *
-from .plotting import *
+from .plot import *
+from .io import *
+from .utils import *
