@@ -1,11 +1,9 @@
-from .data import Field, InterpolationInfo
-from .processor import Simulation
+from .data import FoamCase, FieldData
+from .types import DataFrame
+#from .processor import Simulation
 
 __all__ = [
-    "Field",
-    "InterpolationInfo",
-    "Simulation",
-    "compare_profiles",
-    "int_check",
-    "ds"
+    'FoamCase',
+    'FieldData',
+    'DataFrame',
 ]
