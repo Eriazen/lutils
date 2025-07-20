@@ -4,7 +4,9 @@ plots/
 main.py
 lutils/__pycache__/
 lutils/core/__pycache__/
-lutils/plotting/__pycache__/
+lutils/plot/__pycache__/
+lutils/io/__pycache__/
+lutils/utils/__pycache__/
 *.png
 *.egg*
 dist/
