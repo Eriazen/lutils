@@ -51,11 +51,8 @@ def get_of_version(case_path: str) -> Union[int, None]:
                     # If found, return version cast to int, else raise exception
                     if found:
                         return cast(int, found.group(1))
-                    else:
-                        raise ValueError("No OpenFOAM version found in log. Specify version manually in FoamCase.")
-        # If no logs found, raise erroe
-        else:
-            raise ValueError('No logs found to get OpenFOAM version. Specify version manually in FoamCase.')
+    # If no logs found, raise error
+    raise ValueError('No logs found to get OpenFOAM version. Specify version manually in FoamCase.')
 
 def find_in_log(case_path: str,
                 log_name: str,
