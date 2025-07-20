@@ -1,10 +1,11 @@
-from collections.abc import Mapping, Iterator
+from collections.abc import MutableMapping, Iterator
+from typing import Union
 import numpy as np
 
 from ..utils.utils import is_list_str
 
 
-class DataFrame(Mapping):
+class DataFrame(MutableMapping):
     def __init__(self,
                  header: list[str],
                  data: np.ndarray) -> None:
@@ -19,7 +20,8 @@ class DataFrame(Mapping):
         self._data = data
         self._map = {name: idx for idx, name in enumerate(header)}
 
-    def __getitem__(self, key):
+    def __getitem__(self,
+                    key):
         '''
         Return a column, row, cell or multiple columns depending on key type.
 
@@ -55,6 +57,41 @@ class DataFrame(Mapping):
         # Raise type error
         else:
             raise TypeError('Invalid key type. Try again with str, int, tuple or list[str].')
+
+    def __setitem__(self,
+                    key,
+                    value) -> None:
+        '''
+        Modify a specified value based on key type.
+
+        Parameters:
+            - key: str, int, tuple or list[str]
+            - value: value to be stored at key
+        '''
+        # Overwrite column
+        if isinstance(key, str):
+            self._data[:, key] = value
+        # Overwrite row
+        elif isinstance(key, int):
+            self._data[key] = value
+        # Overwrite cell value
+        elif isinstance(key, tuple):
+            row, col = key
+            self._data[row, col] = value
+        # Overwrite multiple columns
+        elif is_list_str(key):
+            for col in key:
+                self._data[col] = value
+
+    def __delitem__(self,
+                    key) -> None:
+        '''
+        Set a specified value as np.nan.
+
+        Parameters:
+            - key: str, int, tuple or list[str]
+        '''
+        self._data[key] = np.nan
 
     def __iter__(self) -> Iterator[str]:
         '''
