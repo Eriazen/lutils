@@ -1,31 +1,19 @@
-import numpy as np
-
 from .parser import parse_internal_field
-
+from ..core import types
 
 def load_internal_field(case_path: str,
-                        file_path: str,
-                        fields: list[str]) -> tuple[np.ndarray, np.ndarray]:
+                        file_path: str) -> types.DataFrame:
     '''
-    Loads parsed OpenFOAM data into NumPy arrays.
+    Loads parsed OpenFOAM data into custom DataFrame.
+
+    Parameters:
+        - case_path: path to OpenFOAM case folder
+        - file_path: path to file in case folder
 
     Returns:
-        - coords: array of coordinate values
-        - values: array of specified fields
+        - DataFrame compromised of header and values
     '''
-    header, data = parse_internal_field(case_path, file_path)
+    # Parse OpenFOAM file
+    header, values = parse_internal_field(case_path, file_path)
 
-    idx = []
-    for f in fields:
-        idx.append(header.index(f))
-    idx.sort()
-
-    x_idx = header.index('x')
-    y_idx = header.index('y')
-    z_idx = header.index('z')
-
-
-    coords = data[:, [x_idx, y_idx, z_idx]]
-    values = data[:, idx]
-
-    return coords, values
+    return types.DataFrame(header, values)

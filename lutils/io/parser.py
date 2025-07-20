@@ -6,25 +6,31 @@ def parse_internal_field(case_path: str,
                          file_path: str) -> tuple[list[str], np.ndarray]:
     '''
     Parses a CSV-style file output from readAndWrite functions into Python.
+    
+    Parameters:
+        - case_path: path to OpenFOAM case folder
+        - file_path: path to file in case folder
 
     Returns:
         - header: list of column names
         - data: structured NumPy array
-
     '''
-    # concatenate path
+    # Concatenate path
     path = os.path.join(case_path, file_path)
+    # Open and parse file
     with open(path) as f:
         lines = f.readlines()
-        header = lines[0].strip().split(',') # seperate header
-
+        # Separate header
+        header = lines[0].strip().split(',')
         data = []
         for line in lines[1:]:
-            if not line.strip(): # skip empty lines
+            # Skip empty lines
+            if not line.strip():
                 continue
             values = line.strip().split(',')
-            row = [float(x) if x else np.nan for x in values] # convert to float, np.nan for empty values
+            # convert to float, convert to np.nan for empty cells
+            row = [float(x) if x else np.nan for x in values]
             data.append(row)
-
-    arr = np.array(data) # convert to array
+    # Convert the list into np.ndarray
+    arr = np.array(data)
     return header, arr
