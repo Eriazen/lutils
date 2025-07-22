@@ -8,7 +8,7 @@ from .types import DataFrame
 
 class FoamCase:
     '''
-    Base class representing one OpenFOAM case. Contains data relevant for post processing.
+    Base class representing the OpenFOAM case. Contains data relevant for post processing.
     '''
     def __init__(self,
                  case_path: str,
@@ -65,13 +65,16 @@ class FoamCase:
         Parameters:
             - field_name: str key of desired field
         '''
-        del self.fields[field_name]
+        try:
+            del self.fields[field_name]
+        except:
+            raise ValueError('Field with specified name does not exist.')
 
     def add_residuals(self,
                       file_path: str,
                       fields: list[str] = []) -> None:
         '''
-        Load the residuals from a specified file.
+        Load residuals from a specified file.
 
         Parameters:
             - file_path: path to file in case folder
