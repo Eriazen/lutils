@@ -1,7 +1,7 @@
 import os
 import numpy as np
 
-from ..io.loader import load_internal_field
+from ..io.loader import load_internal_field, load_residuals
 from ..utils.utils import get_of_version, check_dir
 from .types import DataFrame
 
@@ -14,28 +14,36 @@ class FoamCase:
                  case_path: str,
                  label: str,
                  log_dir: str = './logs/',
-                 of_version: int = 0) -> None:
+                 of_version: int = 0,
+                 auto_load: bool = True) -> None:
         '''
         Initialize the FoamCase class.
 
         Parameters:
             - case_path: path to OpenFOAM case folder
             - label: case label used in e.g. plot labels
+            - log_dir: directory to store logs
             - of_version: version of OpenFOAM used, leave at 0 to autocheck log files
+            - auto_load: if true, tries to automatically load files from default paths
         '''
         self._case_path = case_path
         self._log_dir = log_dir
         self.label = label
         self.fields = {}
+        self.residuals = None
 
         # Check if log folder exists, otherwise create
         check_dir(os.path.join(self._case_path, self._log_dir))
 
         # Set speficied version, else try to get version from logs
-        if of_version != 0:
+        if of_version:
             self.of_version = of_version
         else:
             self.of_version = get_of_version(self._case_path)
+
+        # Run autoload if true
+        if auto_load:
+            self._auto_load()
 
     def add_field(self,
                   file_path: str,
@@ -58,6 +66,34 @@ class FoamCase:
             - field_name: str key of desired field
         '''
         del self.fields[field_name]
+
+    def add_residuals(self,
+                      file_path: str,
+                      fields: list[str] = []) -> None:
+        '''
+        Load the residuals from a specified file.
+
+        Parameters:
+            - file_path: path to file in case folder
+            - fields: list of field names to load
+        '''
+        self.residuals = ResidualsData(self._case_path, file_path, fields)
+
+    def _auto_load(self) -> None:
+        '''
+        Tries to automatically load residuals based on the used OpenFOAM version.
+        '''
+        if self.of_version == 2312:
+            default_path = '/postProcessing/residuals/0/solverInfo.dat'
+        elif self.of_version == 8:
+            default_path = 'postProcessing/residuals/0/residuals.dat'
+        else:
+            raise ValueError('You are using an unsupported OpenFOAM version.')
+
+        if os.path.exists(os.path.join(self._case_path, default_path)):
+            self.residuals = ResidualsData(self._case_path, default_path)
+        else:
+            print('Auto load failed: default residuals path not found. Please load residuals with the add_residuals function.')
 
 
 class FieldData:
@@ -84,8 +120,26 @@ class FieldData:
 
 
 class ResidualsData:
-    pass
+    '''
+    Stores the residuals loaded from OpenFOAM files.
+    '''
+    def __init__(self,
+                 case_path: str,
+                 file_path: str,
+                 fields: list[str] = []) -> None:
+        '''
+        Initializes the ResidualsData class.
 
+        Parameters:
+            - case_path: path to OpenFOAM case folder
+            - file_path: path to file in case folder
+            - fields: list of field names to load
+        '''
+        residuals = load_residuals(case_path, file_path)
+        if not fields:
+            self.data = residuals
+        else:
+            self.data = DataFrame(fields, residuals[fields])
 
 class InterpolationData:
     pass

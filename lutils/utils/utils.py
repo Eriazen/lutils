@@ -1,6 +1,6 @@
 import os
 import re
-from typing import Union, cast
+from typing import Union
 
 
 # Check if path exists, create dir if not
@@ -50,7 +50,7 @@ def get_of_version(case_path: str) -> Union[int, None]:
                     found = re.search(r'Version:\s+(\S+)', line)
                     # If found, return version cast to int, else raise exception
                     if found:
-                        return cast(int, found.group(1))
+                        return int(found.group(1))
     # If no logs found, raise error
     raise ValueError('No logs found to get OpenFOAM version. Specify version manually in FoamCase.')
 
