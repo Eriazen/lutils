@@ -1,7 +1,7 @@
 from collections.abc import MutableMapping, Iterator
 import numpy as np
 
-from ..utils.utils import is_list_str
+from ..utils.misc import is_list_str
 
 
 class DataFrame(MutableMapping):

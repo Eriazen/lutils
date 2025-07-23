@@ -2,7 +2,7 @@ import os
 import numpy as np
 from abc import ABC
 
-from .utils import check_dir
+from .misc import check_dir
 
 
 class BaseLog(ABC):

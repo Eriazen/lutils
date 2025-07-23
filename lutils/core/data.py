@@ -2,7 +2,7 @@ import os
 import numpy as np
 
 from ..io.loader import load_internal_field, load_residuals
-from ..utils.utils import get_of_version, check_dir
+from ..utils.misc import get_of_version, check_dir
 from .types import DataFrame
 
 
