@@ -7,7 +7,7 @@ from .utils import check_dir
 
 class BaseLog(ABC):
     '''
-
+    Base class for logging OpenFOAM case data to NumPy array and writing them to a formatted text file.
     '''
     def __init__(self,
                  log_name: str,
@@ -15,6 +15,13 @@ class BaseLog(ABC):
                  case_path: str,
                  log_dir: str = 'logs/') -> None:
         '''
+        Initialize the BaseLog object, create internal log array and ensure log directory exists.
+
+        Parameters:
+        - log_name: name of the log
+        - dtype: NumPy structured dtype for log entries
+        - case_path: path to OpenFOAM case folder
+        - log_dir: directory to store logs, relative to case_path
 
         '''
         self.name = log_name
@@ -27,14 +34,20 @@ class BaseLog(ABC):
     def add_entry(self,
                   row: tuple) -> None:
         '''
+        Add a signle row to the log.
 
+        Parameters:
+            - row: a tuple matching the log dtype
         '''
         self._log = np.append(self._log, np.array(row, dtype=self._log_dtype))
 
     def add_batch(self,
                   batch: np.ndarray) -> None:
         '''
+        Add multiple rows to the log.
 
+        Parameters:
+            - batch: structured NumPy array matching the log dtype
         '''
         self._log = np.concatenate((self._log, batch))
 
@@ -42,7 +55,11 @@ class BaseLog(ABC):
               file_name: str,
               header: str | None = None):
         '''
+        Write the logged data to a text file in a table format.
 
+        Parameters:
+            - file_name: name of the output file
+            - header: optional header at the top of the log file
         '''
         path = os.path.join(self._log_dir, file_name)
 
@@ -53,7 +70,10 @@ class BaseLog(ABC):
 
     def _format_table(self):
         '''
+        Convert the internal log array to a readable table format.
 
+        Returns:
+            - str: formatted table as a string
         '''
         lines = []
         col_names = self._log_dtype.names
