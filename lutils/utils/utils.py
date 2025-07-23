@@ -1,6 +1,5 @@
 import os
 import re
-from typing import Union
 
 
 # Check if path exists, create dir if not
@@ -28,7 +27,7 @@ def is_list_str(key) -> bool:
         return False
     return True
 
-def get_of_version(case_path: str) -> Union[int, None]:
+def get_of_version(case_path: str) -> int | None:
     '''
     Get version of OpenFOAM used in speficied case. Version is extracted from solver log file.
 
@@ -56,7 +55,7 @@ def get_of_version(case_path: str) -> Union[int, None]:
 
 def find_in_log(case_path: str,
                 log_name: str,
-                str_id: str) -> Union[str, None]:
+                str_id: str) -> str | None:
     '''
     Find arbitrary string in specified log.
 

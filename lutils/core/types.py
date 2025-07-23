@@ -1,5 +1,4 @@
 from collections.abc import MutableMapping, Iterator
-from typing import Union
 import numpy as np
 
 from ..utils.utils import is_list_str
