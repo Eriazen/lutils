@@ -19,6 +19,30 @@ class DataFrame(MutableMapping):
         self._data = data
         self._map = {name: idx for idx, name in enumerate(header)}
 
+    def filter_rows(self,
+                    column: str,
+                    value: float) -> np.ndarray:
+        '''
+        Gets rows where column values are close to specified value.
+
+        Parameters:
+            - column: column name
+            - value: value for comparison
+
+        Returns:
+            - filtered np.ndarray
+        '''
+        # Get id of column
+        idx = self._map[column]
+
+        arr = []
+        # Check if value in columns is close to specified value for each row
+        for row in self._data:
+            if np.isclose(row[idx], value):
+                arr.append(row)
+
+        return np.array(arr)
+
     def __getitem__(self,
                     key):
         '''

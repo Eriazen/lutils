@@ -121,6 +121,38 @@ class FieldData:
         keys = ['x', 'y', 'z', self.name]
         self.data = DataFrame(keys, self._internal_field[keys])
 
+    def _trim(self,
+             position_axis: str,
+             position_value: float,
+             data_axis: str):
+        '''
+        Get data with values close to the specified value and sort by desired column.
+
+        Parameters:
+            - position_axis: name of horizontal axis
+            - position_value: value of horizontal axis
+            - data_axis: name of vertical axis
+
+        Returns:
+            - np.ndarray sorted by data_axis
+        '''
+        # Get position axis values
+        data_axis_values = self.data[position_axis]
+
+        # Find the column value close to position value
+        near_idx = np.argmin(np.abs(data_axis_values-position_value))
+        near_val = data_axis_values[near_idx]
+
+        # Filter data
+        filtered = self.data.filter_rows(position_axis, near_val)
+
+        # Sort filtered data by data axis
+        col_idx = self.data._map[data_axis]
+        sorted_idx = np.argsort(filtered[:, col_idx])
+        sorted = filtered[sorted_idx]
+
+        return sorted
+
 
 class ResidualsData:
     '''
