@@ -30,7 +30,6 @@ class FoamCase:
         self._log_dir = log_dir
         self.label = label
         self.fields = {}
-        self.residuals = None
 
         # Check if log folder exists, otherwise create
         check_dir(os.path.join(self._case_path, self._log_dir))
