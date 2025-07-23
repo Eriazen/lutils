@@ -12,7 +12,7 @@ class FoamCase:
     '''
     def __init__(self,
                  case_path: str,
-                 label: str,
+                 label: str | None = None,
                  log_dir: str = 'logs/',
                  of_version: int = 0,
                  auto_load: bool = True) -> None:
@@ -21,7 +21,7 @@ class FoamCase:
 
         Parameters:
             - case_path: path to OpenFOAM case folder
-            - label: case label used in e.g. plot labels
+            - label: optional case label
             - log_dir: directory to store logs
             - of_version: version of OpenFOAM used, leave at 0 to autocheck log files
             - auto_load: if true, tries to automatically load files from default paths
