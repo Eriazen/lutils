@@ -13,7 +13,7 @@ class FoamCase:
     def __init__(self,
                  case_path: str,
                  label: str,
-                 log_dir: str = './logs/',
+                 log_dir: str = 'logs/',
                  of_version: int = 0,
                  auto_load: bool = True) -> None:
         '''
@@ -87,13 +87,14 @@ class FoamCase:
         Tries to automatically load residuals based on the used OpenFOAM version.
         '''
         if self.of_version == 2312:
-            default_path = '/postProcessing/residuals/0/solverInfo.dat'
+            default_path = 'postProcessing/residuals/0/solverInfo.dat'
         elif self.of_version == 8:
             default_path = 'postProcessing/residuals/0/residuals.dat'
         else:
             raise ValueError('You are using an unsupported OpenFOAM version.')
 
-        if os.path.exists(os.path.join(self._case_path, default_path)):
+        path = os.path.join(self._case_path, default_path)
+        if os.path.exists(path):
             self.residuals = ResidualsData(self._case_path, default_path)
         else:
             print('Auto load failed: default residuals path not found. Please load residuals with the add_residuals function.')
