@@ -1,0 +1,7 @@
+remove auto_load, implement as a default argument in ...Data classes
+
+finish plotter.py module
+
+add interpolation info parsing, loading and class
+
+add data post processing -> check ds, check interpolation, ...
