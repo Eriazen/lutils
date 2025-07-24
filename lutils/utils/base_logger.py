@@ -53,7 +53,7 @@ class BaseLog(ABC):
 
     def write(self,
               file_name: str,
-              header: str | None = None):
+              header: str | None = None) -> None:
         '''
         Write the logged data to a text file in a table format.
 
@@ -68,7 +68,7 @@ class BaseLog(ABC):
                 f.write(f'{header}\n\n')
             f.write(self._format_table())
 
-    def _format_table(self):
+    def _format_table(self) -> str:
         '''
         Convert the internal log array to a readable table format.
 
