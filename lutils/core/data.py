@@ -137,6 +137,7 @@ class FieldData:
             - np.ndarray sorted by data_axis
         '''
         # Get position axis values
+        column_names = self.data._header
         data_axis_values = self.data[position_axis]
 
         # Find the column value close to position value
@@ -151,7 +152,7 @@ class FieldData:
         sorted_idx = np.argsort(filtered[:, col_idx])
         sorted = filtered[sorted_idx]
 
-        return sorted
+        return DataFrame(column_names, sorted)
 
 
 class ResidualsData:
@@ -170,7 +171,10 @@ class ResidualsData:
             - file_path: path to file in case folder
             - fields: list of field names to load
         '''
+        # Load residuals
         residuals = load_residuals(case_path, file_path)
+
+        # If no fields given load all, else select provided
         if not fields:
             self.data = residuals
         else:
