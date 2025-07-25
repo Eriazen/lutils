@@ -38,43 +38,58 @@ def get_of_version(case_path: str) -> int | None:
         - int: if version found
         - None: if version not found
     '''
-    # Get list of files in case folder
-    for file in os.listdir(case_path):
-        # Look for solver log files
-        if file.startswith('log.') and file.endswith('Foam'):
-            path = os.path.join(case_path, file)
-            with open(os.path.join(path), 'r') as f:
-                # Regex OpenFOAM version
-                for line in f:
-                    found = re.search(r'Version:\s+(\S+)', line)
-                    # If found, return version cast to int, else raise exception
-                    if found:
-                        return int(found.group(1))
-    # If no logs found, raise error
-    raise ValueError('No logs found to get OpenFOAM version. Specify version manually in FoamCase.')
+    dict_path = 'system/controlDict'
+    # Check if controlDict exists, find solver name
+    if os.path.exists(os.path.join(case_path, dict_path)):
+        solver_log = find_in_file(case_path, dict_path, 'application')
+    else:
+        raise ValueError('Invalid file path: controlDict not found.')
+    # Check if solver name found, join path
+    if solver_log:
+        log_path = os.path.join(case_path, f'log.{solver_log.strip(';')}')
+    else:
+        raise ValueError('Solver name not found in controlDict')
+    # Open solver log and find OpenFOAMa version
+    with open(log_path, 'r') as f:
+        # Regex OpenFOAM version
+        for line in f:
+            found = re.search(r'Version:\s+(\S+)', line)
+            # If found, return version cast to int, else raise exception
+            if found:
+                return int(found.group(1))
 
-def find_in_log(case_path: str,
-                log_name: str,
-                str_id: str) -> str | None:
+def find_in_file(case_path: str,
+                 file_path: str,
+                 str_id: str,
+                 return_next: bool = True) -> bool | str | None:
     '''
-    Find arbitrary string in specified log.
+    Find arbitrary string in specified file.
 
     Parameters:
         - case_path: path to OpenFOAM case folder
-        - log_name: name of log to search in
-        - str_id: desired string
+        - file_path: path to file in case folder
+        - str_id: desired string, supports regex
+        - return_str: switch between str and bool return
 
     Returns:
         - str: if str found
         - None: if str not found
     '''
-    fileName = os.path.join(case_path, log_name)
-    with open(fileName,'r') as file:
-        data = file.readlines()
-    to_return = None
+    path = os.path.join(case_path, file_path)
+    # Precompile regex to save time
+    regex = re.compile(str_id)
+    next = re.compile(r'\S+')
 
-    for line in data:
-        if str_id in line:
-            to_return = line[:-1]
-
-    return to_return
+    with open(path, 'r') as f:
+        for line in f:
+            # Search file for input string
+            match = regex.search(line)
+            if match:
+                if return_next:
+                    # If return_next, search for the next str and return
+                    rest = line[match.end():]
+                    next_match = next.search(rest)
+                    return next_match.group() if next_match else None
+                return True
+    # If no match return None or False
+    return None if return_next else False
