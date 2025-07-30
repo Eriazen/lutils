@@ -105,9 +105,9 @@ class FieldData:
         self.data = DataFrame(keys, self._internal_field[keys])
 
     def _trim(self,
-             position_axis: str,
-             position_value: float,
-             data_axis: str) -> DataFrame:
+              position_axis: str,
+              position_value: float,
+              data_axis: str) -> DataFrame:
         '''
         Get data with values close to the specified value and sort by desired column.
 

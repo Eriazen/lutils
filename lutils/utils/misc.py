@@ -58,8 +58,7 @@ def get_of_version(case_path: str) -> int | None:
             # If found, return version cast to int, else raise exception
             if found:
                 return int(found.group(1))
-            else:
-                raise ValueError('No OpenFOAM version found in controlDict.')
+        return None
 
 def find_in_file(case_path: str,
                  file_path: str,
