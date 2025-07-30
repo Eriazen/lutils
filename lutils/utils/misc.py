@@ -39,6 +39,7 @@ def get_of_version(case_path: str) -> int | None:
         - None: if version not found
     '''
     dict_path = 'system/controlDict'
+    ver = re.compile(r'Version:\s+(\S+)')
     # Check if controlDict exists, find solver name
     if os.path.exists(os.path.join(case_path, dict_path)):
         solver_log = find_in_file(case_path, dict_path, 'application')
@@ -53,10 +54,12 @@ def get_of_version(case_path: str) -> int | None:
     with open(log_path, 'r') as f:
         # Regex OpenFOAM version
         for line in f:
-            found = re.search(r'Version:\s+(\S+)', line)
+            found = ver.search(line)
             # If found, return version cast to int, else raise exception
             if found:
                 return int(found.group(1))
+            else:
+                raise ValueError('No OpenFOAM version found in controlDict.')
 
 def find_in_file(case_path: str,
                  file_path: str,
@@ -69,7 +72,7 @@ def find_in_file(case_path: str,
         - case_path: path to OpenFOAM case folder
         - file_path: path to file in case folder
         - str_id: desired string, supports regex
-        - return_str: switch between str and bool return
+        - return_next: switch between str and bool return
 
     Returns:
         - str: if str found

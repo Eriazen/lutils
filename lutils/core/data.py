@@ -14,8 +14,7 @@ class FoamCase:
                  case_path: str,
                  label: str | None = None,
                  log_dir: str = 'logs/',
-                 of_version: int = 0,
-                 auto_load: bool = True) -> None:
+                 of_version: int = 0) -> None:
         '''
         Initialize the FoamCase class.
 
@@ -39,10 +38,11 @@ class FoamCase:
             self.of_version = of_version
         else:
             self.of_version = get_of_version(self._case_path)
-
-        # Run autoload if true
-        if auto_load:
-            self._auto_load()
+        
+        if len(str(self.of_version)) == 4:
+            self.of_version_type = 'com'
+        else:
+            self.of_version = 'org'
 
     def add_field(self,
                   file_path: str,
@@ -79,24 +79,7 @@ class FoamCase:
             - file_path: path to file in case folder
             - fields: list of field names to load
         '''
-        self.residuals = ResidualsData(self._case_path, file_path, fields)
-
-    def _auto_load(self) -> None:
-        '''
-        Tries to automatically load residuals based on the used OpenFOAM version.
-        '''
-        if self.of_version == 2312:
-            default_path = 'postProcessing/residuals/0/solverInfo.dat'
-        elif self.of_version == 8:
-            default_path = 'postProcessing/residuals/0/residuals.dat'
-        else:
-            raise ValueError('You are using an unsupported OpenFOAM version.')
-
-        path = os.path.join(self._case_path, default_path)
-        if os.path.exists(path):
-            self.residuals = ResidualsData(self._case_path, default_path)
-        else:
-            print('Auto load failed: default residuals path not found. Please load residuals with the add_residuals function.')
+        self.residuals = ResidualsData(self._case_path, self.of_version_type, file_path, fields)
 
 
 class FieldData:
@@ -161,7 +144,8 @@ class ResidualsData:
     '''
     def __init__(self,
                  case_path: str,
-                 file_path: str,
+                 of_version_type: str,
+                 file_path: str | None = None,
                  fields: list[str] = []) -> None:
         '''
         Initializes the ResidualsData class.
@@ -172,7 +156,13 @@ class ResidualsData:
             - fields: list of field names to load
         '''
         # Load residuals
-        residuals = load_residuals(case_path, file_path)
+        if file_path:
+            residuals = load_residuals(case_path, file_path)
+        else:
+            if of_version_type == 'com':
+                residuals = load_residuals(case_path, 'postProcessing/resiuals/0/solverInfo.dat')
+            else:
+                residuals = load_residuals(case_path, 'postProcessign/residuals/0/residuals.dat')
 
         # If no fields given load all, else select provided
         if not fields:
