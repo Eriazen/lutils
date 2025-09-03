@@ -8,12 +8,12 @@
 Build  : _e651d635-20240208 OPENFOAM=2312 patch=240220 version=2312
 Arch   : "LSB;label=32;scalar=64"
 Exec   : readAndWriteTurbulenceFields epsilon
-Date   : Jul 16 2025
-Time   : 14:32:23
+Date   : Sep 03 2025
+Time   : 13:56:48
 Host   : summit
-PID    : 67181
+PID    : 9729
 I/O    : uncollated
-Case   : /home/vecerniv/tmg/openHFDIBRANS/bfs/default_mesh/100/simpleFoam_kE
+Case   : /home/vecerniv/my_libs/lutils-rewrite/tests/bfs/simpleFoam_kE
 nProcs : 1
 trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
 fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
@@ -22,7 +22,7 @@ allowSystemOperations : Allowing user-supplied system call operations
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 Create time
 
-Create mesh for time = 429
+Create mesh for time = 459
 
 Reading field epsilon
 
