@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 import numpy as np
 from abc import ABC
 
@@ -26,7 +26,7 @@ class BaseLog(ABC):
         '''
         self.name = log_name
         self._log_dtype = dtype
-        self._log_dir = os.path.join(case_path, log_dir)
+        self._log_dir = Path(case_path / log_dir)
         self._log = np.empty((0,), dtype=self._log_dtype)
 
         check_dir(self._log_dir)
@@ -61,9 +61,9 @@ class BaseLog(ABC):
             - file_name: name of the output file
             - header: optional header at the top of the log file
         '''
-        path = os.path.join(self._log_dir, file_name)
+        path = Path(self._log_dir / file_name)
 
-        with open(path, 'w') as f:
+        with path.open('w') as f:
             if header:
                 f.write(f'{header}\n\n')
             f.write(self._format_table())
