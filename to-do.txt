@@ -1,9 +1,13 @@
 DONE: remove auto_load, implement as a default argument in ...Data classes
 
-finish plotter.py module
+FINISH: plotter.py module
 
-add interpolation info parsing, loading and class
+ADD: interpolation info parsing, loading and class
 
-add data post processing -> check ds, check interpolation, ...
+ADD: data post processing -> check ds, check interpolation, ...
 
 DONE: change get_of_version to search solver log specified in controlDict
+
+ADD: case run/clean methods
+
+ADD: change case dict parameters method
