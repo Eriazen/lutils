@@ -1,14 +1,15 @@
 import os
+from pathlib import Path
 import re
 
 
 # Check if path exists, create dir if not
-def check_dir(path: str) -> None:
+def check_dir(path: Path) -> None:
     '''
     Check if path exists, create directory if not.
     '''
-    if not os.path.exists(path):
-        os.makedirs(path)
+    if not path.exists():
+        Path.mkdir(path)
 
 
 def is_list_str(key) -> bool:
@@ -41,17 +42,17 @@ def get_of_version(case_path: str) -> int | None:
     dict_path = 'system/controlDict'
     ver = re.compile(r'Version:\s+(\S+)')
     # Check if controlDict exists, find solver name
-    if os.path.exists(os.path.join(case_path, dict_path)):
+    if Path(case_path / dict_path).exists():
         solver_log = find_in_file(case_path, dict_path, 'application')
     else:
         raise ValueError('Invalid file path: controlDict not found.')
     # Check if solver name found, join path
     if solver_log:
-        log_path = os.path.join(case_path, f'log.{solver_log.strip(';')}')
+        log_path = Path(case_path, f'log.{solver_log.strip(';')}')
     else:
         raise ValueError('Solver name not found in controlDict')
     # Open solver log and find OpenFOAMa version
-    with open(log_path, 'r') as f:
+    with log_path.open() as f:
         # Regex OpenFOAM version
         for line in f:
             found = ver.search(line)
@@ -77,12 +78,12 @@ def find_in_file(case_path: str,
         - str: if str found
         - None: if str not found
     '''
-    path = os.path.join(case_path, file_path)
+    path = Path(case_path / file_path)
     # Precompile regex to save time
     regex = re.compile(str_id)
     next = re.compile(r'\S+')
 
-    with open(path, 'r') as f:
+    with path.open() as f:
         for line in f:
             # Search file for input string
             match = regex.search(line)

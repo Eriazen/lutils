@@ -1,5 +1,5 @@
-import os
 import numpy as np
+from pathlib import Path
 
 from ..io.loader import load_internal_field, load_residuals
 from ..utils.misc import get_of_version, check_dir
@@ -8,7 +8,8 @@ from .types import DataFrame
 
 class FoamCase:
     '''
-    Base class representing the OpenFOAM case. Contains data relevant for post processing.
+    Base class representing the OpenFOAM case.
+    Contains data relevant for management and post processing.
     '''
     def __init__(self,
                  case_path: str,
@@ -22,16 +23,15 @@ class FoamCase:
             - case_path: path to OpenFOAM case folder
             - label: optional case label
             - log_dir: directory to store logs
-            - of_version: version of OpenFOAM used, leave at 0 to autocheck log files
-            - auto_load: if true, tries to automatically load files from default paths
+            - of_version: version of OpenFOAM used
         '''
-        self._case_path = case_path
+        self._case_path = Path(case_path)
         self._log_dir = log_dir
         self.label = label
         self.fields = {}
 
-        # Check if log folder exists, otherwise create
-        check_dir(os.path.join(self._case_path, self._log_dir))
+        # Check if log folder exists, otherwise create new one
+        check_dir(self._case_path / self._log_dir)
 
         # Set speficied version, else try to get version from logs
         if of_version:
@@ -42,7 +42,7 @@ class FoamCase:
         if len(str(self.of_version)) == 4:
             self.of_version_type = 'com'
         else:
-            self.of_version = 'org'
+            self.of_version_type = 'org'
 
     def add_field(self,
                   file_path: str,

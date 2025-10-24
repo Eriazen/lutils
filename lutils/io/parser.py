@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 import numpy as np
 
 
@@ -16,9 +16,9 @@ def parse_internal_field(case_path: str,
         - data: structured NumPy array
     '''
     # Concatenate path
-    path = os.path.join(case_path, file_path)
+    path = Path(case_path / file_path)
     # Open and parse file
-    with open(path) as f:
+    with path.open() as f:
         lines = f.readlines()
         # Separate header
         header = lines[0].strip().split(',')
@@ -49,9 +49,9 @@ def parse_residuals(case_path: str,
         - data: structured NumPy array
     '''
     # Concatenate path
-    path = os.path.join(case_path, file_path)
+    path = Path(case_path / file_path)
     # Open and parse file
-    with open(path) as f:
+    with path.open() as f:
         lines = f.readlines()
         # Separate header
         header = lines[1].strip('#').split()
