@@ -1,4 +1,5 @@
 import subprocess
+from pathlib import Path
 
 from .data import FoamCase
 
@@ -29,9 +30,10 @@ class CaseManager:
             - cases: list of case labels, None runs all cases
         '''
         to_run = self._select_case(cases)
-
+        
+        pwd = Path.cwd()
         for case in to_run:
-            subprocess.call(case._case_path / 'Allrun')
+            subprocess.run('./Allrun', cwd= pwd / case._case_path)
 
     def clean_case(self,
                    cases: list[str] | None = None) -> None:
@@ -42,9 +44,11 @@ class CaseManager:
             - cases: list of case labels, None cleans all cases
         '''
         to_clean = self._select_case(cases)
-
+        
+        pwd = Path.cwd()
         for case in to_clean:
-            subprocess.call(case._case_path / 'Allclean')
+            print(pwd / case._case_path)
+            subprocess.run('./Allclean', cwd= pwd / case._case_path)
 
     def _select_case(self,
                      cases: list[str] | None = None) -> list[FoamCase]:
