@@ -13,7 +13,7 @@ class CaseManager:
                  cases: list[FoamCase]) -> None:
         '''
         Initialize CaseManager class.
-        
+
         Parameters:
             - cases: list of FoamCase objects
         '''
@@ -21,34 +21,32 @@ class CaseManager:
         for case in cases:
             self.cases[case.label] = case
 
-    def run_case(self,
-                 cases: list[str] | None = None):
+    def load_of(self,
+                of_bin: str) -> None:
         '''
-        Runs all or specified OpenFOAM cases.
+        Loads given OpenFOAM version.
 
         Parameters:
-            - cases: list of case labels, None runs all cases
+            - of_bin: path to OpenFOAM binary
         '''
-        to_run = self._select_case(cases)
-        
-        pwd = Path.cwd()
-        for case in to_run:
-            subprocess.run('./Allrun', cwd= pwd / case._case_path)
+        subprocess.run(of_bin)
 
-    def clean_case(self,
+    def run_script(self,
+                   script_name: str,
                    cases: list[str] | None = None) -> None:
         '''
-        Cleans all or specified OpenFOAM cases.
+        Runs arbitrary bash script on all or only specified OpenFOAM cases.
 
         Parameters:
+            - script_name: name the script to be run, placed inside case directory
             - cases: list of case labels, None cleans all cases
         '''
-        to_clean = self._select_case(cases)
-        
+        to_run = self._select_case(cases)
+
         pwd = Path.cwd()
-        for case in to_clean:
+        for case in to_run:
             print(pwd / case._case_path)
-            subprocess.run('./Allclean', cwd= pwd / case._case_path)
+            subprocess.run(f'./{script_name}', cwd= pwd / case._case_path)
 
     def _select_case(self,
                      cases: list[str] | None = None) -> list[FoamCase]:
