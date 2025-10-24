@@ -134,7 +134,7 @@ class FieldData:
         col_idx = self.data._map[data_axis]
         sorted_idx = np.argsort(filtered[:, col_idx])
         sorted = filtered[sorted_idx]
-
+        
         return DataFrame(column_names, sorted)
 
 
