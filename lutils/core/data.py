@@ -87,7 +87,7 @@ class FieldData:
     Stores the field data loaded from OpenFOAM files.
     '''
     def __init__(self,
-                 case_path: str,
+                 case_path: Path,
                  file_path: str,
                  field_name: str) -> None:
         '''
@@ -143,7 +143,7 @@ class ResidualsData:
     Stores the residuals loaded from OpenFOAM files.
     '''
     def __init__(self,
-                 case_path: str,
+                 case_path: Path,
                  of_version_type: str,
                  file_path: str | None = None,
                  fields: list[str] = []) -> None:

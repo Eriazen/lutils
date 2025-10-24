@@ -2,7 +2,7 @@ from pathlib import Path
 import numpy as np
 
 
-def parse_internal_field(case_path: str,
+def parse_internal_field(case_path: Path,
                          file_path: str) -> tuple[list[str], np.ndarray]:
     '''
     Parses a CSV-style file output from readAndWrite functions into Python.
@@ -36,7 +36,7 @@ def parse_internal_field(case_path: str,
     return header, arr
 
 
-def parse_residuals(case_path: str,
+def parse_residuals(case_path: Path,
                     file_path: str) -> tuple[list[str], np.ndarray]:
     '''
     Parses an OpenFOAM residuals file into Python.

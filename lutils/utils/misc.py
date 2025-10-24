@@ -28,7 +28,7 @@ def is_list_str(key) -> bool:
         return False
     return True
 
-def get_of_version(case_path: str) -> int | None:
+def get_of_version(case_path: Path) -> int | None:
     '''
     Get version of OpenFOAM used in speficied case. Version is extracted from solver log file.
 
@@ -61,8 +61,8 @@ def get_of_version(case_path: str) -> int | None:
                 return int(found.group(1))
         return None
 
-def find_in_file(case_path: str,
-                 file_path: str,
+def find_in_file(case_path: Path,
+                 file_path: Path,
                  str_id: str,
                  return_next: bool = True) -> bool | str | None:
     '''

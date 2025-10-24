@@ -12,7 +12,7 @@ class BaseLog(ABC):
     def __init__(self,
                  log_name: str,
                  dtype: np.dtype,
-                 case_path: str,
+                 case_path: Path,
                  log_dir: str = 'logs/') -> None:
         '''
         Initialize the BaseLog object, create internal log array and ensure log directory exists.

@@ -1,7 +1,9 @@
+from pathlib import Path
+
 from .parser import parse_internal_field, parse_residuals
 from ..core import types
 
-def load_internal_field(case_path: str,
+def load_internal_field(case_path: Path,
                         file_path: str) -> types.DataFrame:
     '''
     Loads parsed OpenFOAM data into custom DataFrame.
@@ -18,7 +20,7 @@ def load_internal_field(case_path: str,
 
     return types.DataFrame(header, values)
 
-def load_residuals(case_path: str,
+def load_residuals(case_path: Path,
                    file_path: str) -> types.DataFrame:
     '''
     Loads parsed OpenFOAM data into custom DataFrame.
