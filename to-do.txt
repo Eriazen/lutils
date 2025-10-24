@@ -8,6 +8,6 @@ ADD: data post processing -> check ds, check interpolation, ...
 
 DONE: change get_of_version to search solver log specified in controlDict
 
-ADD: case run/clean methods
+DONE: case run/clean methods
 
 ADD: change case dict parameters method
