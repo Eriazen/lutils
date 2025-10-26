@@ -2,8 +2,8 @@ import matplotlib.pyplot as plt
 import matplotlib.figure as fgr
 from pathlib import Path
 
-from ..core.data import FoamCase
-from ..utils.misc import check_dir
+from lutils.core.data import FoamCase
+from lutils.utils.misc import check_dir
 
 
 class FoamPlot:

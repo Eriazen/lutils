@@ -1,7 +1,7 @@
 import subprocess
 from pathlib import Path
 
-from .data import FoamCase
+from lutils.core.data import FoamCase
 
 
 class CaseManager:

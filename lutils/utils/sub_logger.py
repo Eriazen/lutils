@@ -1,6 +1,6 @@
 import numpy as np
 
-from .base_logger import BaseLog
+from lutils.utils.base_logger import BaseLog
 
 
 class ProfileLog(BaseLog):

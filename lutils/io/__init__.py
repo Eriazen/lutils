@@ -1,4 +1,4 @@
-from .loader import load_internal_field, load_residuals
+from lutils.io.loader import load_internal_field, load_residuals
 
 
 __all__ = [

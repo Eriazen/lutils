@@ -1,9 +1,9 @@
 import numpy as np
 from pathlib import Path
 
-from ..io.loader import load_internal_field, load_residuals
-from ..utils.misc import get_of_version, check_dir
-from .types import DataFrame
+from lutils.io.loader import load_internal_field, load_residuals
+from lutils.utils.misc import get_of_version, check_dir
+from lutils.core.types import DataFrame
 
 
 class FoamCase:

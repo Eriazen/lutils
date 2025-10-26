@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from .parser import parse_internal_field, parse_residuals
-from ..core import types
+from lutils.io.parser import parse_internal_field, parse_residuals
+from lutils.core import types
 
 def load_internal_field(case_path: Path,
                         file_path: str) -> types.DataFrame:

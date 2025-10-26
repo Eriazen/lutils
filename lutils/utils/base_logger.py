@@ -2,7 +2,7 @@ from pathlib import Path
 import numpy as np
 from abc import ABC
 
-from .misc import check_dir
+from lutils.utils.misc import check_dir
 
 
 class BaseLog(ABC):
