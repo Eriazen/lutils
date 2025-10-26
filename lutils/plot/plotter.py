@@ -97,7 +97,7 @@ class FoamPlot:
 
 
     def _fig_exists(self,
-                    fig_id: str | int | None) -> fgr.FigureBase:
+                    fig_id: str | int | None) -> fgr.Figure:
         '''
         Checks if figure with specified id already exists, creates one if not.
 
@@ -105,7 +105,7 @@ class FoamPlot:
             - fig_id: figure id of type int or str
 
         Returns:
-            - plt.figure: new or existing matplotlib.figure.FigureBase
+            - plt.figure: new or existing matplotlib.figure.Figure
         '''
         if fig_id == None:
             return plt.figure(figsize=(20, 12))
