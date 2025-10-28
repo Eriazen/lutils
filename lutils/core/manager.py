@@ -15,9 +15,10 @@ class CaseManager:
         Initialize CaseManager class.
 
         Parameters:
-            - cases: list of FoamCase objects
+            - cases: list of FoamCase instances
         '''
         self.cases = {}
+        # load each case into dict
         for case in cases:
             self.cases[case.label] = case
 
@@ -38,14 +39,16 @@ class CaseManager:
         Runs arbitrary bash script on all or only specified OpenFOAM cases.
 
         Parameters:
-            - script_name: name the script to be run, placed inside case directory
-            - cases: list of case labels, None cleans all cases
+            - script_name: name of the script to be run located inside the case directory
+            - cases: list of case labels, None runs the script on all cases
         '''
+        # select cases to run the script on
         to_run = self._select_case(cases)
 
+        # get path to working directory
         pwd = Path.cwd()
+        # run script from case directory
         for case in to_run:
-            print(pwd / case._case_path)
             subprocess.run(f'./{script_name}', cwd= pwd / case._case_path)
 
     def _select_case(self,
@@ -66,5 +69,8 @@ class CaseManager:
                  case: FoamCase) -> None:
         '''
         Adds specified case to manager dictionary under its label.
+
+        Parameters:
+            - case: FoamCase case instance
         '''
         self.cases[case.label] = case
