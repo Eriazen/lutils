@@ -48,7 +48,7 @@ def get_of_version(case_path: Path) -> int | None:
         raise ValueError('Invalid file path: controlDict not found.')
     # Check if solver name found, join path
     if solver_log:
-        log_path = Path(case_path, f'log.{solver_log.strip(';')}')
+        log_path = Path(case_path / f'log.{solver_log.strip(';')}')
     else:
         raise ValueError('Solver name not found in controlDict')
     # Open solver log and find OpenFOAMa version
@@ -62,7 +62,7 @@ def get_of_version(case_path: Path) -> int | None:
         return None
 
 def find_in_file(case_path: Path,
-                 file_path: Path,
+                 file_path: str,
                  str_id: str,
                  return_next: bool = True) -> bool | str | None:
     '''
