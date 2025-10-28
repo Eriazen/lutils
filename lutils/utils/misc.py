@@ -40,6 +40,7 @@ def get_of_version(case_path: Path) -> int | None:
         - None: if version not found
     '''
     dict_path = 'system/controlDict'
+    # Precompile regex to save time
     ver = re.compile(r'Version:\s+(\S+)')
     # Check if controlDict exists, find solver name
     if Path(case_path / dict_path).exists():
