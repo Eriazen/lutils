@@ -9,6 +9,7 @@ class BaseLog(ABC):
     '''
     Base class for logging OpenFOAM case data to NumPy array and writing them to a formatted text file.
     '''
+
     def __init__(self,
                  log_name: str,
                  dtype: np.dtype,
@@ -79,10 +80,11 @@ class BaseLog(ABC):
         col_names = self._log_dtype.names
         col_widths = [max(len(col), 10) for col in col_names]
 
-        header = ' '.join(f'{col:<{w}}' for col, w in zip(col_names, col_widths))
+        header = ' '.join(f'{col:<{w}}' for col,
+                          w in zip(col_names, col_widths))
         lines.append(header)
         lines.append('-' * len(header))
-        
+
         if self._log.shape[0] <= 1:
             row = self._log
             line = ' '.join(f'{row[0][i]:<{w}.6g}' if isinstance(row[0][i], float) else f'{row[0][i]:<{w}}'

@@ -10,6 +10,7 @@ class FoamPlot:
     '''
     Base class for plotting OpenFOAM post processing data.
     '''
+
     def __init__(self,
                  plot_dir: str = './plots/') -> None:
         '''
@@ -60,7 +61,8 @@ class FoamPlot:
                      title: str | None = None,
                      xlabel: str | None = None,
                      ylabel: str | None = None,
-                     fig_id: str | int | None = None) -> None:
+                     fig_id: str | int | None = None,
+                     csv: bool = True) -> None:
         '''
         Plot all data stored in FoamPlot instance over a line in specified direction.
 
@@ -90,11 +92,12 @@ class FoamPlot:
             trimmed = value._trim(position_axis, position_value, data_axis)
             plt.scatter(trimmed[data_axis],
                         trimmed[field_name], label=key)
+            if csv:
+                trimmed.to_csv(self._plot_dir / str(key+'.csv'))
 
         figure.legend(fontsize=18)
 
         figure.savefig(self._plot_dir / output_file)
-
 
     def _fig_exists(self,
                     fig_id: str | int | None) -> fgr.Figure:
@@ -113,5 +116,3 @@ class FoamPlot:
             return plt.figure(fig_id)
         else:
             return plt.figure(fig_id, figsize=(20, 12))
-
-

@@ -6,7 +6,7 @@ def parse_internal_field(case_path: Path,
                          file_path: str) -> tuple[list[str], np.ndarray]:
     '''
     Parses a CSV-style file output from readAndWrite functions into Python.
-    
+
     Parameters:
         - case_path: path to OpenFOAM case folder
         - file_path: path to file in case folder
