@@ -9,6 +9,7 @@ class CaseManager:
     Manager class controlling OpenFOAM cases.
     Used to run or clean specified cases.
     '''
+
     def __init__(self,
                  cases: list[FoamCase]) -> None:
         '''
@@ -49,7 +50,7 @@ class CaseManager:
         pwd = Path.cwd()
         # run script from case directory
         for case in to_run:
-            subprocess.run(f'./{script_name}', cwd= pwd / case._case_path)
+            subprocess.run(f'./{script_name}', cwd=pwd / case._case_path)
 
     def _select_case(self,
                      cases: list[str] | None = None) -> list[FoamCase]:

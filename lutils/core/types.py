@@ -1,5 +1,6 @@
 from collections.abc import MutableMapping, Iterator
 import numpy as np
+import csv
 
 from lutils.utils.misc import is_list_str
 
@@ -79,7 +80,8 @@ class DataFrame(MutableMapping):
             return self._data[:, col_idx]
         # Raise type error
         else:
-            raise TypeError('Invalid key type. Try again with str, int, tuple or list[str].')
+            raise TypeError(
+                'Invalid key type. Try again with str, int, tuple or list[str].')
 
     def __setitem__(self,
                     key,
@@ -105,6 +107,13 @@ class DataFrame(MutableMapping):
         elif is_list_str(key):
             for col in key:
                 self._data[col] = value
+
+    def to_csv(self,
+               path: str) -> None:
+        with open(path, mode='w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow(self._header)
+            writer.writerows(self._data)
 
     def __delitem__(self,
                     key) -> None:

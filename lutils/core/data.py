@@ -11,6 +11,7 @@ class FoamCase:
     Base class representing the OpenFOAM case.
     Contains data relevant for management and post processing.
     '''
+
     def __init__(self,
                  case_path: str,
                  label: str | None = None,
@@ -38,7 +39,7 @@ class FoamCase:
             self.of_version = of_version
         else:
             self.of_version = get_of_version(self._case_path)
-        
+
         if len(str(self.of_version)) == 4:
             self.of_version_type = 'com'
         else:
@@ -54,7 +55,8 @@ class FoamCase:
             - file_path: path to file in case folder
             - field_name: str key of desired field
         '''
-        self.fields[field_name] = FieldData(self._case_path, file_path, field_name)
+        self.fields[field_name] = FieldData(
+            self._case_path, file_path, field_name)
 
     def del_field(self,
                   field_name: str) -> None:
@@ -79,13 +81,15 @@ class FoamCase:
             - file_path: path to file in case folder
             - fields: list of field names to load
         '''
-        self.residuals = ResidualsData(self._case_path, self.of_version_type, file_path, fields)
+        self.residuals = ResidualsData(
+            self._case_path, self.of_version_type, file_path, fields)
 
 
 class FieldData:
     '''
     Stores the field data loaded from OpenFOAM files.
     '''
+
     def __init__(self,
                  case_path: Path,
                  file_path: str,
@@ -134,7 +138,7 @@ class FieldData:
         col_idx = self.data._map[data_axis]
         sorted_idx = np.argsort(filtered[:, col_idx])
         sorted = filtered[sorted_idx]
-        
+
         return DataFrame(column_names, sorted)
 
 
@@ -142,6 +146,7 @@ class ResidualsData:
     '''
     Stores the residuals loaded from OpenFOAM files.
     '''
+
     def __init__(self,
                  case_path: Path,
                  of_version_type: str,
@@ -160,15 +165,18 @@ class ResidualsData:
             residuals = load_residuals(case_path, file_path)
         else:
             if of_version_type == 'com':
-                residuals = load_residuals(case_path, 'postProcessing/resiuals/0/solverInfo.dat')
+                residuals = load_residuals(
+                    case_path, 'postProcessing/resiuals/0/solverInfo.dat')
             else:
-                residuals = load_residuals(case_path, 'postProcessign/residuals/0/residuals.dat')
+                residuals = load_residuals(
+                    case_path, 'postProcessign/residuals/0/residuals.dat')
 
         # If no fields given load all, else select provided
         if not fields:
             self.data = residuals
         else:
             self.data = DataFrame(fields, residuals[fields])
+
 
 class InterpolationData:
     pass
