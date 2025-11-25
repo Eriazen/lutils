@@ -141,6 +141,26 @@ class FieldData:
 
         return DataFrame(column_names, sorted)
 
+    def _get_cells(self,
+                   position_axis: str,
+                   position_value: float,
+                   data_axis: str,
+                   tol: float) -> DataFrame:
+        # Get position axis values
+        column_names = self.data._header
+        data_axis_values = self.data[position_axis]
+
+        # Find all cells close to position value
+        sub = np.abs(data_axis_values-position_value)
+        near_idx = np.where(sub < tol)[0]
+
+        # Filter data
+        filtered = self.data._data[near_idx]
+        # Sort filtered data
+        col_idx = self.data._map[data_axis]
+
+        return DataFrame(column_names, filtered)
+
 
 class ResidualsData:
     '''

@@ -58,6 +58,7 @@ class FoamPlot:
                      data_axis: str,
                      position_axis: str,
                      position_value: float,
+                     position_tol: float,
                      title: str | None = None,
                      xlabel: str | None = None,
                      ylabel: str | None = None,
@@ -89,7 +90,8 @@ class FoamPlot:
             plt.ylabel(ylabel, fontsize=18)
 
         for key, value in self._plot_data.items():
-            trimmed = value._trim(position_axis, position_value, data_axis)
+            trimmed = value._get_cells(
+                position_axis, position_value, data_axis, position_tol)
             plt.scatter(trimmed[data_axis],
                         trimmed[field_name], label=key)
             if csv:
