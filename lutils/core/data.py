@@ -108,10 +108,11 @@ class FieldData:
         keys = ['x', 'y', 'z', self.name]
         self.data = DataFrame(keys, self._internal_field[keys])
 
-    def _trim(self,
-              position_axis: str,
-              position_value: float,
-              data_axis: str) -> DataFrame:
+    def _get_cells(self,
+                   position_axis: str,
+                   position_value: float,
+                   data_axis: str,
+                   tol: float) -> DataFrame:
         '''
         Get data with values close to the specified value and sort by desired column.
 
@@ -119,47 +120,27 @@ class FieldData:
             - position_axis: name of horizontal axis
             - position_value: value of horizontal axis
             - data_axis: name of vertical axis
+            - tol: pass width around position_value
 
         Returns:
-            - np.ndarray sorted by data_axis
+            - DataFrame, sorted by data_axis
         '''
         # Get position axis values
         column_names = self.data._header
         data_axis_values = self.data[position_axis]
 
-        # Find the column value close to position value
-        near_idx = np.argmin(np.abs(data_axis_values-position_value))
-        near_val = data_axis_values[near_idx]
-
-        # Filter data
-        filtered = self.data.filter_rows(position_axis, near_val)
-
-        # Sort filtered data by data axis
-        col_idx = self.data._map[data_axis]
-        sorted_idx = np.argsort(filtered[:, col_idx])
-        sorted = filtered[sorted_idx]
-
-        return DataFrame(column_names, sorted)
-
-    def _get_cells(self,
-                   position_axis: str,
-                   position_value: float,
-                   data_axis: str,
-                   tol: float) -> DataFrame:
-        # Get position axis values
-        column_names = self.data._header
-        data_axis_values = self.data[position_axis]
-
         # Find all cells close to position value
-        sub = np.abs(data_axis_values-position_value)
-        near_idx = np.where(sub < tol)[0]
+        absolute_diff = np.abs(data_axis_values-position_value)
+        filter_idx = np.where(absolute_diff < tol)[0]
 
         # Filter data
-        filtered = self.data._data[near_idx]
+        filtered_data = self.data._data[filter_idx]
         # Sort filtered data
-        col_idx = self.data._map[data_axis]
+        sort_column_idx = self.data._map[data_axis]
+        sorting_idx = np.argsort(filtered_data[:, sort_column_idx])
+        sorted_filtered_data = filtered_data[sorting_idx]
 
-        return DataFrame(column_names, filtered)
+        return DataFrame(column_names, sorted_filtered_data)
 
 
 class ResidualsData:
