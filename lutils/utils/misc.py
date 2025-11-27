@@ -1,6 +1,17 @@
-import os
 from pathlib import Path
 import re
+import subprocess
+
+
+# load provided OpenFoam version
+def load_of(of_bin: str) -> None:
+    '''
+    Loads given OpenFOAM version.
+
+    Parameters:
+        - of_bin: path to OpenFOAM binary
+    '''
+    subprocess.run(of_bin)
 
 
 # Check if path exists, create dir if not
@@ -12,6 +23,7 @@ def check_dir(path: Path) -> None:
         Path.mkdir(path)
 
 
+# Check if input is of type list
 def is_list_str(key) -> bool:
     '''
     Check if input key is a list of strings.
@@ -29,6 +41,7 @@ def is_list_str(key) -> bool:
     return True
 
 
+# find OpenFOAM version based on log.* files
 def get_of_version(case_path: Path) -> int | None:
     '''
     Get version of OpenFOAM used in speficied case. Version is extracted from solver log file.

@@ -1,5 +1,6 @@
 import numpy as np
 from pathlib import Path
+import subprocess
 
 from lutils.io.loader import load_internal_field, load_residuals
 from lutils.utils.misc import get_of_version, check_dir
@@ -14,7 +15,7 @@ class FoamCase:
 
     def __init__(self,
                  case_path: str,
-                 label: str | None = None,
+                 label: str,
                  log_dir: str = 'logs/',
                  of_version: int = 0) -> None:
         '''
@@ -26,10 +27,13 @@ class FoamCase:
             - log_dir: directory to store logs
             - of_version: version of OpenFOAM used
         '''
+        if not Path(case_path).is_dir():
+            raise FileNotFoundError(
+                f'Case path not found or in not a directory.')
         self._case_path = Path(case_path)
         self._log_dir = log_dir
-        self.label = label
-        self.fields = {}
+        self._label = label
+        self._fields = {}
 
         # Check if log folder exists, otherwise create new one
         check_dir(self._case_path / self._log_dir)
@@ -45,6 +49,53 @@ class FoamCase:
         else:
             self.of_version_type = 'org'
 
+    @property
+    def case_path(self):
+        return self._case_path
+
+    @property
+    def label(self):
+        return self._label
+
+    @property
+    def fields(self):
+        return self._fields
+
+    def run_script(self,
+                   file_name: str) -> None:
+        '''
+        Runs an arbitrary script inside OpenFOAM case.
+
+        Parameters:
+            - file_name: path to script, relative paths are assumed to be inside the case directory
+        '''
+        script_path = Path(file_name)
+
+        # check if script_path is absolute, else run as if in case dir
+        if script_path.is_absolute():
+            command = str(script_path)
+
+            if not script_path.exists():
+                raise FileNotFoundError(
+                    f'Script file not found at absolute path: {script_path}')
+        else:
+            full_script_path = self.case_path / script_path
+            if not full_script_path.exists():
+                raise FileNotFoundError(
+                    f'Script file not found inside case directory: {full_script_path}')
+            command = f'./{file_name}'
+
+        try:
+            # run script from case directory
+            subprocess.run(command, cwd=self.case_path, check=True)
+        except subprocess.CalledProcessError as e:
+            err_msg = (
+                f'Script execution failed for case "{self.label}" at path: {self.case_path}.')
+            raise RuntimeError(err_msg) from e
+        except Exception as e:
+            raise RuntimeError(
+                f'An unexpected error occured while trying to run script "{file_name}" for case "{self.label}": {e}')
+
     def add_field(self,
                   file_path: str,
                   field_name: str) -> None:
@@ -56,7 +107,7 @@ class FoamCase:
             - field_name: str key of desired field
         '''
         self.fields[field_name] = FieldData(
-            self._case_path, file_path, field_name)
+            self.case_path, file_path, field_name)
 
     def del_field(self,
                   field_name: str) -> None:
@@ -82,7 +133,7 @@ class FoamCase:
             - fields: list of field names to load
         '''
         self.residuals = ResidualsData(
-            self._case_path, self.of_version_type, file_path, fields)
+            self.case_path, self.of_version_type, file_path, fields)
 
 
 class FieldData:
@@ -103,7 +154,6 @@ class FieldData:
             - field_name: str key of desired field
         '''
         self._internal_field = load_internal_field(case_path, file_path)
-
         self.name = field_name
         keys = ['x', 'y', 'z', self.name]
         self.data = DataFrame(keys, self._internal_field[keys])
