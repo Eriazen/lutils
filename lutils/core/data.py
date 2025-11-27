@@ -119,8 +119,9 @@ class FoamCase:
         '''
         try:
             del self.fields[field_name]
-        except:
-            raise ValueError('Field with specified name does not exist.')
+        except ValueError:
+            print(
+                f'Field "{field_name}" not "{self.label}" fields. Skipping deletion.')
 
     def add_residuals(self,
                       file_path: str,
