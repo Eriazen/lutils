@@ -2,7 +2,7 @@ import numpy as np
 from pathlib import Path
 import subprocess
 
-from lutils.io.loader import load_internal_field, load_residuals
+from lutils.io.loader import parse_internal_field, parse_residuals
 from lutils.utils.misc import get_of_version, check_dir
 from lutils.core.types import DataFrame
 
@@ -134,7 +134,7 @@ class FoamCase:
             - fields: list of field names to load
         '''
         self.residuals = ResidualsData(
-            self.case_path, self.of_version_type, file_path, fields)
+            self.case_path, file_path, fields)
 
 
 class FieldData:
@@ -154,10 +154,24 @@ class FieldData:
             - file_path: path to file in case folder
             - field_name: str key of desired field
         '''
-        self._internal_field = load_internal_field(case_path, file_path)
-        self.name = field_name
-        keys = ['x', 'y', 'z', self.name]
-        self.data = DataFrame(keys, self._internal_field[keys])
+        self._path = case_path / file_path
+        if not self._path.exists():
+            raise FileNotFoundError(
+                f'File not found inside case directory: {self._path}')
+
+        self._internal_field = parse_internal_field(self._path)
+        self._name = field_name
+
+        keys = ['x', 'y', 'z', self._name]
+        self._data = DataFrame(keys, self._internal_field[keys])
+
+    @property
+    def data(self):
+        return self._data
+
+    @property
+    def name(self):
+        return self._name
 
     def _get_cells(self,
                    position_axis: str,
@@ -201,8 +215,7 @@ class ResidualsData:
 
     def __init__(self,
                  case_path: Path,
-                 of_version_type: str,
-                 file_path: str | None = None,
+                 file_path: str,
                  fields: list[str] = []) -> None:
         '''
         Initializes the ResidualsData class.
@@ -213,21 +226,21 @@ class ResidualsData:
             - fields: list of field names to load
         '''
         # Load residuals
-        if file_path:
-            residuals = load_residuals(case_path, file_path)
-        else:
-            if of_version_type == 'com':
-                residuals = load_residuals(
-                    case_path, 'postProcessing/resiuals/0/solverInfo.dat')
-            else:
-                residuals = load_residuals(
-                    case_path, 'postProcessign/residuals/0/residuals.dat')
+        self._path = case_path / file_path
+        if not self._path.exists():
+            raise FileNotFoundError(
+                f'File not found inside case directory: {self._path}')
+        residuals = parse_residuals(self._path)
 
         # If no fields given load all, else select provided
         if not fields:
-            self.data = residuals
+            self._data = residuals
         else:
-            self.data = DataFrame(fields, residuals[fields])
+            self._data = DataFrame(fields, residuals[fields])
+
+    @property
+    def data(self):
+        return self._data
 
 
 class InterpolationData:
