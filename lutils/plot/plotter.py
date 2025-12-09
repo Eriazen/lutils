@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.figure as fgr
 from pathlib import Path
+from typing import cast
 
 from lutils.core.data import FoamCase
 from lutils.utils.misc import check_dir
@@ -8,76 +9,83 @@ from lutils.io.parser import parse_yaml_config
 
 
 class FoamPlot:
-    '''
-    Base class for plotting OpenFOAM post processing data.
-    '''
+    """
+    Base class for plotting OpenFOAM post-processing data.
+
+    This class manages the configuration, storage, and rendering of plots
+    derived from OpenFOAM cases. It handles data aggregation from multiple
+    cases and output directory management.
+
+    Parameters
+    ----------
+    plot_dir : str, optional
+        The directory path where generated plots and CSV data will be saved.
+        Default is './plots/'.
+    """
 
     def __init__(self,
                  plot_dir: str = './plots/') -> None:
-        '''
-        Initializes the FoamPlot class.
-
-        Parameters:
-            - plot_dir: directory to store plots
-        '''
         self._plot_dir = Path(plot_dir)
         self._plot_data = {}
 
+        if not self._plot_dir.exists():
+            self._plot_dir.mkdir()
+
         check_dir(self._plot_dir)
 
-    @property
-    def title(self):
-        return self._title
+    def _get_plot_config(self,
+                         label_path: str,
+                         style: str) -> dict[str, str]:
+        """
+        Configures the matplotlib style and plot labels from a config file.
 
-    @property
-    def xlabel(self):
-        return self._xlabel
+        Parameters
+        ----------
+        label_path : str
+            The path to a YAML configuration file containing 'title',
+            'xlabel', and 'ylabel' keys, or a preset name.
+        style : str
+            The valid matplotlib style sheet name to apply.
 
-    @property
-    def ylabel(self):
-        return self._ylabel
-
-    def _setup_plot(self,
-                    label_path: str,
-                    style: str) -> None:
-        '''
-        Sets matplotlib style and plot labels.
-
-        Parameters:
-            - label_path: path to YAML file with labels or preset label name
-            - style: style name
-        '''
-        # get and set labels
-        labels = parse_yaml_config(label_path)
-        self._title = labels['title']
-        self._xlabel = labels['xlabel']
-        self._ylabel = labels['ylabel']
-        # set style
+        Returns
+        -------
+        dict : [str, str]
+            The dictionary with labels.
+        """
+        # Set style
         plt.style.use(style)
+
+        # Return dict with labels
+        return parse_yaml_config(label_path)
 
     def add_data(self,
                  case: FoamCase,
                  field_name: str,
                  label: str) -> None:
-        '''
-        Loads plot data from specified case object.
+        """
+        Registers field data from a specific OpenFOAM case for plotting.
 
-        Parameters:
-            - case: FoamCase object containing desired field
-            - field_name: str key of desired field
-            - label: plot data label, used for plotting
-        '''
+        Parameters
+        ----------
+        case : FoamCase
+            The OpenFOAM case object containing the data.
+        field_name : str
+            The name of the field variable to extract (e.g., 'U', 'p').
+        label : str
+            The legend label to assign to this dataset in the plot.
+        """
         self._plot_data[label] = case.fields[field_name]
 
     def del_data(self,
                  label: str) -> None:
-        '''
-        Deletes specified plot data from the FoamPlot class.
+        """
+        Removes a specific dataset from the plotting queue.
 
-        Parameters:
-            - label: plot data label
-
-        '''
+        Parameters
+        ----------
+        label : str
+            The label of the dataset to remove.
+        """
         try:
             del self._plot_data[label]
         except KeyError:
@@ -94,58 +102,82 @@ class FoamPlot:
                      style: str = 'lutils.plt_cfg.lutils',
                      figure_id: str | int | None = None,
                      out_csv: bool = True) -> None:
-        '''
-        Plot all data over a line in a specified direction.
+        """
+        Generates a profile plot by extracting data along a geometric slice.
 
-        Parameters:
-            - output_file: output file name
-            - field: plot field 
-            - data_axis: data axis
-            - position_axis: profile axis
-            - position_value: profile value
-            - position_tol: profile value tolerance
-            - labels: path to YAML file with labels
-            - style: matplotlib style
-            - figure_id: figure id
-            - out_csv: if true, output a csv file with data
-        '''
+        This method filters 3D field data to find cells close to a specific
+        coordinate ('position_value') along a 'position_axis', effectively
+        creating a line plot through the domain.
 
-        # get label and style
-        self._setup_plot(labels, style)
+        Parameters
+        ----------
+        output_file : str
+            The filename for the saved plot (e.g., 'profile.png').
+        field : str
+            The specific scalar component of the field to plot.
+        data_axis : str
+            The axis to plot against (usually the independent variable axis).
+        position_axis : str
+            The axis used to slice the domain (the fixed coordinate axis).
+        position_value : float
+            The coordinate value along `position_axis` where the slice is taken.
+        position_tol : float
+            The tolerance width around `position_value` to include cells.
+        labels : str, optional
+            The label configuration preset or path. Default is 'velocity'.
+        style : str, optional
+            The matplotlib style sheet to use. Default is 'lutils.plt_cfg.lutils'.
+        figure_id : str or int or None, optional
+            The unique identifier for the figure. If None, a new figure is created.
+        out_csv : bool, optional
+            If True, exports the sliced data to CSV files in the plot directory.
+            Default is True.
+        """
 
-        # init figure
-        figure = self._setup_figure(figure_id)
+        # Get label and style
+        config = self._get_plot_config(labels, style)
 
-        # set labels
-        plt.title(self.title)
-        plt.xlabel(self.xlabel)
-        plt.ylabel(self.ylabel)
+        # Retrieve figure
+        fig, ax = self._get_figure_ax(figure_id)
 
-        # plot all plot data entries
+        # Set labels
+        ax.set_title(config['title'])
+        ax.set_xlabel(config['xlabel'])
+        ax.set_ylabel(config['ylabel'])
+
+        # Plot all plot data entries
         for key, value in self._plot_data.items():
             trimmed = value._get_cells(
                 position_axis, position_value, data_axis, position_tol)
-            plt.scatter(trimmed[data_axis],
-                        trimmed[field], label=key)
+            ax.scatter(trimmed[data_axis],
+                       trimmed[field], label=key)
             if out_csv:
-                trimmed.to_csv(self._plot_dir / str(key+'.csv'))
+                trimmed.to_csv(self._plot_dir / 'csv' / str(key+'.csv'))
 
-        figure.legend()
+        fig.legend()
 
-        figure.savefig(self._plot_dir / output_file)
+        fig.savefig(self._plot_dir / output_file)
 
-    def _setup_figure(self,
-                      figure_id: str | int | None) -> fgr.Figure | fgr.FigureBase:
-        '''
-        Gets an existing figure with specified id, otherwise creates one.
+    def _get_figure_ax(self,
+                       figure_id: str | int | None) -> tuple[fgr.Figure, fgr.Axes]:
+        """
+        Retrieves an existing figure or creates a new one.
 
-        Parameters:
-            - figure_id: figure id of type int or str
+        Parameters
+        ----------
+        figure_id : str or int or None
+            The unique identifier for the figure.
 
-        Returns:
-            - plt.figure: new or existing matplotlib figure
-        '''
-        if not figure_id:
-            return plt.figure()
+        Returns
+        -------
+        matplotlib.figure.Figure
+            The active matplotlib figure object.
+        """
+        if figure_id:
+            fig = cast(fgr.Figure, plt.figure(figure_id))
+            ax = fig.gca()
+        else:
+            raw_fig, ax = plt.subplots()
+            fig = cast(fgr.Figure, raw_fig)
 
-        return plt.figure(figure_id)
+        return fig, ax

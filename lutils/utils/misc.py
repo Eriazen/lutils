@@ -5,60 +5,78 @@ import subprocess
 
 # load provided OpenFoam version
 def load_of(of_bin: str) -> None:
-    '''
-    Loads given OpenFOAM version.
+    """
+    Sources or executes the specified OpenFOAM binary/environment script.
 
-    Parameters:
-        - of_bin: path to OpenFOAM binary
-    '''
+    Parameters
+    ----------
+    of_bin : str
+        The file path to the OpenFOAM binary or sourcing script.
+    """
     subprocess.run(of_bin)
 
 
 # Check if path exists, create dir if not
 def check_dir(path: Path) -> None:
-    '''
-    Check if path exists, create directory if not.
-    '''
+    """
+    Ensures that a directory exists, creating it if necessary.
+
+    Parameters
+    ----------
+    path : Path
+        The directory path to check or create.
+    """
     if not path.exists():
         Path.mkdir(path)
 
 
 # Check if input is of type list
 def is_list_str(key) -> bool:
-    '''
-    Check if input key is a list of strings.
+    """
+    Validates if the input key is a list composed exclusively of strings.
 
-    Parameters:
-        - key: key to check
+    Parameters
+    ----------
+    key : Any
+        The object to validate.
 
-    Returns:
-        - bool
-    '''
-    if not isinstance(key, list):
-        return False
-    if not all(isinstance(k, str) for k in key):
-        return False
-    return True
+    Returns
+    -------
+    bool
+        True if `key` is a list of strings, False otherwise.
+    """
+    return isinstance(key, list) and all(isinstance(k, str) for k in key)
 
 
 # find OpenFOAM version based on log.* files
 def get_of_version(case_path: Path) -> int | None:
-    '''
-    Get version of OpenFOAM used in speficied case. Version is extracted from solver log file.
+    """
+    Extracts the OpenFOAM version number from the case's solver log.
 
-    Parameters:
-        - case_path: path to OpenFOAM case folder
+    This function first identifies the solver used via 'system/controlDict',
+    then searches the corresponding log file for the version string.
 
-    Returns:
-        - int: if version found
-        - None: if version not found
-    '''
-    dict_path = 'system/controlDict'
+    Parameters
+    ----------
+    case_path : Path
+        The root directory of the OpenFOAM case.
+
+    Returns
+    -------
+    int or None
+        The major version number if found (e.g., 2312, 11), otherwise None.
+
+    Raises
+    ------
+    ValueError
+        If 'system/controlDict' is missing or if the solver name cannot be found within it.
+    """
+    path = case_path / 'system/controlDict'
     # Precompile regex to save time
     ver = re.compile(r'Version:\s+(\S+)')
     # Check if controlDict exists, find solver name
-    if Path(case_path / dict_path).exists():
-        solver_log = find_in_file(case_path, dict_path, 'application')
+    if path.exists():
+        solver_log = find_in_file(path, 'application')
     else:
         raise ValueError('Invalid file path: controlDict not found.')
     # Check if solver name found, join path
@@ -71,30 +89,34 @@ def get_of_version(case_path: Path) -> int | None:
         # Regex OpenFOAM version
         for line in f:
             found = ver.search(line)
-            # If found, return version cast to int, else raise exception
+            # If found, return version cast to int
             if found:
                 return int(found.group(1))
         return None
 
 
-def find_in_file(case_path: Path,
-                 file_path: str,
+def find_in_file(path: Path,
                  str_id: str,
                  return_next: bool = True) -> bool | str | None:
-    '''
-    Find arbitrary string in specified file.
+    """
+    Searches for a specific string pattern within a file.
 
-    Parameters:
-        - case_path: path to OpenFOAM case folder
-        - file_path: path to file in case folder
-        - str_id: desired string, supports regex
-        - return_next: switch between str and bool return
+    Parameters
+    ----------
+    path : Path
+        The path to the target file.
+    str_id : str
+        The string pattern or regex to search for.
+    return_next : bool, optional
+        If True, returns the non-whitespace string immediately following the match.
+        If False, returns True immediately upon finding a match. Default is True.
 
-    Returns:
-        - str: if str found
-        - None: if str not found
-    '''
-    path = Path(case_path / file_path)
+    Returns
+    -------
+    str or bool or None
+        - If `return_next` is True: The string following the match, or None if not found.
+        - If `return_next` is False: True if the match exists, False otherwise.
+    """
     # Precompile regex to save time
     regex = re.compile(str_id)
     next = re.compile(r'\S+')

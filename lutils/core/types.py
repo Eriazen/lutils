@@ -6,16 +6,30 @@ from lutils.utils.misc import is_list_str
 
 
 class DataFrame(MutableMapping):
+    """
+    A custom DataFrame implementation backed by NumPy arrays.
+
+    This class provides a dictionary-like interface for managing 2D tabular data,
+    supporting column access via string keys, row access via integer indices,
+    and cell access via tuples.
+
+    Parameters
+    ----------
+    header : list[str]
+        A list of strings representing the column names.
+    data : np.ndarray
+        A 2D NumPy array containing the table data. The shape must be
+        (rows, len(header)).
+
+    Attributes
+    ----------
+    shape : tuple[int, int]
+        The dimensions of the dataframe (rows, columns).
+    """
+
     def __init__(self,
                  header: list[str],
                  data: np.ndarray) -> None:
-        '''
-        Initializes the DataFrame.
-
-        Parameters:
-            - header: list of str, column names
-            - data: 2D NumPy array of shape (rows, columns)
-        '''
         self._header = header
         self._data = data
         self._map = {name: idx for idx, name in enumerate(header)}
@@ -23,16 +37,23 @@ class DataFrame(MutableMapping):
     def filter_rows(self,
                     column: str,
                     value: float) -> np.ndarray:
-        '''
-        Gets rows where column values are close to specified value.
+        """
+        Selects rows where the specified column matches a value.
 
-        Parameters:
-            - column: column name
-            - value: value for comparison
+        This method uses `np.isclose` to compare floating point values.
 
-        Returns:
-            - filtered np.ndarray
-        '''
+        Parameters
+        ----------
+        column : str
+            The name of the column to filter by.
+        value : float
+            The target value to compare against.
+
+        Returns
+        -------
+        np.ndarray
+            A new NumPy array containing only the rows that match the criteria.
+        """
         # Get id of column
         idx = self._map[column]
 
@@ -46,19 +67,29 @@ class DataFrame(MutableMapping):
 
     def __getitem__(self,
                     key):
-        '''
-        Return a column, row, cell or multiple columns depending on key type.
+        """
+        Retrieves data from the DataFrame based on the key type.
 
-        Parameters:
-            - key: str, int, tuple or list[str]
+        Parameters
+        ----------
+        key : str, int, tuple, or list[str]
+            - **str**: Returns the column as a 1D array.
+            - **int**: Returns the row as a 1D array.
+            - **tuple (row, col)**: Returns the scalar value at the specific cell.
+            - **list[str]**: Returns a subset of columns as a 2D array.
 
-        Returns:
-            - str: column as a NumPy array
-            - int: row as NumPy array
-            - tuple: value in a cell at [row, column]
-            - list[str]: multiple columns as a NumPy array
+        Returns
+        -------
+        np.ndarray or scalar
+            The requested data slice or value.
 
-        '''
+        Raises
+        ------
+        TypeError
+            If the key type is not supported.
+        KeyError
+            If a column string is provided that does not exist in the header.
+        """
         # Column access using str key
         if isinstance(key, str):
             col_idx = self._map[key]
@@ -78,7 +109,6 @@ class DataFrame(MutableMapping):
                 col_idx.append(self._map[col])
             col_idx.sort()
             return self._data[:, col_idx]
-        # Raise type error
         else:
             raise TypeError(
                 'Invalid key type. Try again with str, int, tuple or list[str].')
@@ -86,13 +116,16 @@ class DataFrame(MutableMapping):
     def __setitem__(self,
                     key,
                     value) -> None:
-        '''
-        Modify a specified value based on key type.
+        """
+        Modifies data at the specified location.
 
-        Parameters:
-            - key: str, int, tuple or list[str]
-            - value: value to be stored at key
-        '''
+        Parameters
+        ----------
+        key : str, int, tuple, or list[str]
+            The location to modify (column, row, cell, or multiple columns).
+        value : scalar or array_like
+            The value(s) to assign to the specified location.
+        """
         # Overwrite column
         if isinstance(key, str):
             self._data[:, key] = value
@@ -110,6 +143,14 @@ class DataFrame(MutableMapping):
 
     def to_csv(self,
                path: str) -> None:
+        """
+        Exports the DataFrame to a CSV file.
+
+        Parameters
+        ----------
+        path : str
+            The destination file path.
+        """
         with open(path, mode='w', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
             writer.writerow(self._header)
@@ -117,34 +158,52 @@ class DataFrame(MutableMapping):
 
     def __delitem__(self,
                     key) -> None:
-        '''
-        Set a specified value as np.nan.
+        """
+        Masks the specified data with NaN (Not a Number).
 
-        Parameters:
-            - key: str, int, tuple or list[str]
-        '''
+        Note: This does not remove the row or column from the array structure;
+        it merely invalidates the data at the specified key.
+
+        Parameters
+        ----------
+        key : str, int, tuple, or list[str]
+            The location to mask with NaN.
+        """
         self._data[key] = np.nan
 
     def __iter__(self) -> Iterator[str]:
-        '''
-        Returns an iterator over column names.
-        '''
+        """
+        Returns an iterator over the column names.
+
+        Yields
+        ------
+        str
+            The next column name in the header.
+        """
         return iter(self._header)
 
     def __repr__(self) -> str:
-        '''
-        Returns string representation of the DataFrame.
-        '''
+        """Returns the string representation of the DataFrame."""
         return f'{self._header}\n{self._data}'
 
     def __len__(self) -> int:
-        '''
+        """
         Returns the number of columns in the DataFrame.
-        '''
+
+        Returns
+        -------
+        int
+            The length of the header list.
+        """
         return len(self._header)
 
     def shape(self):
-        '''
-        Returns the shape of the DataFrame as (rows, columns).
-        '''
+        """
+        Returns the dimensions of the DataFrame.
+
+        Returns
+        -------
+        tuple[int, int]
+            A tuple representing (number_of_rows, number_of_columns).
+        """
         return self._data.shape
