@@ -2,7 +2,7 @@ import numpy as np
 from pathlib import Path
 import subprocess
 
-from lutils.io.loader import parse_internal_field, parse_residuals
+from lutils.io.parser import parse_internal_field, parse_residuals
 from lutils.utils.misc import get_of_version, check_dir
 from lutils.core.types import DataFrame
 
