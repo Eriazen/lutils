@@ -1,9 +1,12 @@
 from pathlib import Path
 import numpy as np
+import yaml
+
+from lutils.core.types import DataFrame
+from lutils.plt_cfg.labels import Labels
 
 
-def parse_internal_field(case_path: Path,
-                         file_path: str) -> tuple[list[str], np.ndarray]:
+def parse_internal_field(path: Path) -> DataFrame:
     '''
     Parses a CSV-style file output from readAndWrite functions into Python.
 
@@ -12,11 +15,8 @@ def parse_internal_field(case_path: Path,
         - file_path: path to file in case folder
 
     Returns:
-        - header: list of column names
-        - data: structured NumPy array
+        - DataFrame: DataFrame instance with residuals data
     '''
-    # Concatenate path
-    path = Path(case_path / file_path)
     # Open and parse file
     with path.open() as f:
         lines = f.readlines()
@@ -33,11 +33,11 @@ def parse_internal_field(case_path: Path,
             data.append(row)
     # Convert the list into np.ndarray
     arr = np.array(data)
-    return header, arr
+
+    return DataFrame(header, arr)
 
 
-def parse_residuals(case_path: Path,
-                    file_path: str) -> tuple[list[str], np.ndarray]:
+def parse_residuals(path: Path) -> DataFrame:
     '''
     Parses an OpenFOAM residuals file into Python.
 
@@ -45,11 +45,8 @@ def parse_residuals(case_path: Path,
         - case_path: path to OpenFOAM case folder
         - file_path: path to file in case folder
     Returns:
-        - header: list of column names
-        - data: structured NumPy array
+        - DataFrame: DataFrame instance with residuals data
     '''
-    # Concatenate path
-    path = Path(case_path / file_path)
     # Open and parse file
     with path.open() as f:
         lines = f.readlines()
@@ -74,4 +71,42 @@ def parse_residuals(case_path: Path,
             data.append(row)
     # Convert the list into np.ndarray
     arr = np.array(data)
-    return header, arr
+
+    return DataFrame(header, arr)
+
+
+def parse_yaml_config(cfg_path: str) -> dict[str, str]:
+    '''
+    Gets preset labels, otherwise parses labels from file.
+
+    Parameters:
+        - cfg_path: preset label name or file path
+                    valid preset labels are [velocity, k, nut, epsilon, omega]
+    Returns:
+        - dict[str, str]: dictionary with [key, label]
+    '''
+    # check if input matches any preset labels
+    labels = Labels()
+    match cfg_path:
+        case 'velocity':
+            return labels.velocity
+        case 'k':
+            return labels.k
+        case 'nut':
+            return labels.nut
+        case 'epsilon':
+            return labels.epsilon
+        case 'omega':
+            return labels.omega
+        case _:
+            pass
+
+    # otherwise load labels from file
+    path = Path(cfg_path)
+    if not path.exists():
+        raise FileNotFoundError(f'Config file not found at path: {path}')
+
+    with path.open() as f:
+        config = yaml.safe_load(f)
+
+    return config
