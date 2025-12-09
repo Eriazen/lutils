@@ -4,6 +4,7 @@ from pathlib import Path
 
 from lutils.core.data import FoamCase
 from lutils.utils.misc import check_dir
+from lutils.io.parser import parse_yaml_config
 
 
 class FoamPlot:
@@ -23,6 +24,36 @@ class FoamPlot:
         self._plot_data = {}
 
         check_dir(self._plot_dir)
+
+    @property
+    def title(self):
+        return self._title
+
+    @property
+    def xlabel(self):
+        return self._xlabel
+
+    @property
+    def ylabel(self):
+        return self._ylabel
+
+    def _setup_plot(self,
+                    label_path: str,
+                    style: str) -> None:
+        '''
+        Sets matplotlib style and plot labels.
+
+        Parameters:
+            - label_path: path to YAML file with labels or preset label name
+            - style: style name
+        '''
+        # get and set labels
+        labels = parse_yaml_config(label_path)
+        self._title = labels['title']
+        self._xlabel = labels['xlabel']
+        self._ylabel = labels['ylabel']
+        # set style
+        plt.style.use(style)
 
     def add_data(self,
                  case: FoamCase,
@@ -49,72 +80,72 @@ class FoamPlot:
         '''
         try:
             del self._plot_data[label]
-        except:
-            raise ValueError('Plot data with specified label does not exist.')
+        except KeyError:
+            print(f'Plot data with label "{label}" not found.')
 
     def plot_profile(self,
                      output_file: str,
-                     field_name: str,
+                     field: str,
                      data_axis: str,
                      position_axis: str,
                      position_value: float,
                      position_tol: float,
-                     title: str | None = None,
-                     xlabel: str | None = None,
-                     ylabel: str | None = None,
-                     fig_id: str | int | None = None,
-                     csv: bool = True) -> None:
+                     labels: str = 'velocity',
+                     style: str = 'lutils.plt_cfg.lutils',
+                     figure_id: str | int | None = None,
+                     out_csv: bool = True) -> None:
         '''
-        Plot all data stored in FoamPlot instance over a line in specified direction.
+        Plot all data over a line in a specified direction.
 
         Parameters:
-            - output_file: name of output file
-            - field_name: name of plotted field
-            - across: 
-            - profile: 
-            - profile_value:
-            - title: plot title
-            - xlabel: plot x label
-            - ylabel: plot y label
-            - fig_id: plot figure id
+            - output_file: output file name
+            - field: plot field 
+            - data_axis: data axis
+            - position_axis: profile axis
+            - position_value: profile value
+            - position_tol: profile value tolerance
+            - labels: path to YAML file with labels
+            - style: matplotlib style
+            - figure_id: figure id
+            - out_csv: if true, output a csv file with data
         '''
-        figure = self._fig_exists(fig_id)
 
-        if title != None:
-            plt.title(title, fontsize=22)
+        # get label and style
+        self._setup_plot(labels, style)
 
-        if xlabel != None:
-            plt.xlabel(xlabel, fontsize=18)
+        # init figure
+        figure = self._setup_figure(figure_id)
 
-        if ylabel != None:
-            plt.ylabel(ylabel, fontsize=18)
+        # set labels
+        plt.title(self.title)
+        plt.xlabel(self.xlabel)
+        plt.ylabel(self.ylabel)
 
+        # plot all plot data entries
         for key, value in self._plot_data.items():
             trimmed = value._get_cells(
                 position_axis, position_value, data_axis, position_tol)
             plt.scatter(trimmed[data_axis],
-                        trimmed[field_name], label=key)
-            if csv:
+                        trimmed[field], label=key)
+            if out_csv:
                 trimmed.to_csv(self._plot_dir / str(key+'.csv'))
 
-        figure.legend(fontsize=18)
+        figure.legend()
 
         figure.savefig(self._plot_dir / output_file)
 
-    def _fig_exists(self,
-                    fig_id: str | int | None) -> fgr.Figure:
+    def _setup_figure(self,
+                      figure_id: str | int | None) -> fgr.Figure | fgr.FigureBase:
         '''
-        Checks if figure with specified id already exists, creates one if not.
+        Gets an existing figure with specified id, otherwise creates one.
 
         Parameters:
-            - fig_id: figure id of type int or str
+            - figure_id: figure id of type int or str
 
         Returns:
-            - plt.figure: new or existing matplotlib.figure.Figure
+            - plt.figure: new or existing matplotlib figure
         '''
-        if fig_id == None:
-            return plt.figure(figsize=(20, 12))
-        elif plt.fignum_exists(fig_id):
-            return plt.figure(fig_id)
-        else:
-            return plt.figure(fig_id, figsize=(20, 12))
+        if not figure_id:
+            return plt.figure()
+
+        return plt.figure(figure_id)
