@@ -31,8 +31,6 @@ class FoamPlot:
         if not self._plot_dir.exists():
             self._plot_dir.mkdir()
 
-        check_dir(self._plot_dir)
-
     def _get_plot_config(self,
                          label_path: str,
                          style: str) -> dict[str, str]:
@@ -152,7 +150,7 @@ class FoamPlot:
             ax.scatter(trimmed[data_axis],
                        trimmed[field], label=key)
             if out_csv:
-                trimmed.to_csv(self._plot_dir / 'csv' / str(key+'.csv'))
+                trimmed.to_csv(self._plot_dir / str(key+'.csv'))
 
         fig.legend()
 
