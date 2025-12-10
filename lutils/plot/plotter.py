@@ -147,7 +147,7 @@ class FoamPlot:
 
         # Plot all plot data entries
         for key, value in self._plot_data.items():
-            trimmed = value._get_cells(
+            trimmed = value.get_cells(
                 position_axis, position_value, data_axis, position_tol)
             ax.scatter(trimmed[data_axis],
                        trimmed[field], label=key)
