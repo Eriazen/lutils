@@ -10,7 +10,8 @@ requires-python = ">=3.10"
 readme = "README.md"
 dependencies = [
     "numpy",
-    "matplotlib"
+    "matplotlib",
+    "pyyaml"
 ]
 
 [project.urls]
