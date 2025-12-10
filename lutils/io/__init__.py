@@ -1,6 +1,8 @@
-from .loader import load_internal_field, load_residuals
+from lutils.io.parser import parse_internal_field, parse_residuals, parse_yaml_config
 
 
 __all__ = [
-    'load_internal_field',
-    'load_residuals']
+    'parse_internal_field',
+    'parse_residuals',
+    'parse_yaml_config'
+]

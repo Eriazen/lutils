@@ -10,4 +10,6 @@ DONE: change get_of_version to search solver log specified in controlDict
 
 DONE: case run/clean methods
 
-ADD: change case dict parameters method
+DONE: change case dict parameters method
+
+CHANGE: rewrite method/class descriptions to the NumPy style

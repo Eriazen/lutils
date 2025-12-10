@@ -1,22 +1,30 @@
 from pathlib import Path
 import numpy as np
+import yaml
+
+from lutils.core.types import DataFrame
+from lutils.plt_cfg.labels import Labels
 
 
-def parse_internal_field(case_path: Path,
-                         file_path: str) -> tuple[list[str], np.ndarray]:
-    '''
-    Parses a CSV-style file output from readAndWrite functions into Python.
-    
-    Parameters:
-        - case_path: path to OpenFOAM case folder
-        - file_path: path to file in case folder
+def parse_internal_field(path: Path) -> DataFrame:
+    """
+    Parses a CSV-style internal field file into a DataFrame.
 
-    Returns:
-        - header: list of column names
-        - data: structured NumPy array
-    '''
-    # Concatenate path
-    path = Path(case_path / file_path)
+    This function expects a comma-separated format where the first line contains
+    headers and subsequent lines contain numerical data.
+
+    Parameters
+    ----------
+    path : Path
+        The file path to the CSV data file.
+
+    Returns
+    -------
+    DataFrame
+        A DataFrame instance containing the parsed numerical data.
+    """
+    if not path.exists():
+        raise FileNotFoundError(f'Internal field file not found at: {path}')
     # Open and parse file
     with path.open() as f:
         lines = f.readlines()
@@ -33,23 +41,31 @@ def parse_internal_field(case_path: Path,
             data.append(row)
     # Convert the list into np.ndarray
     arr = np.array(data)
-    return header, arr
+
+    return DataFrame(header, arr)
 
 
-def parse_residuals(case_path: Path,
-                    file_path: str) -> tuple[list[str], np.ndarray]:
-    '''
-    Parses an OpenFOAM residuals file into Python.
+def parse_residuals(path: Path) -> DataFrame:
+    """
+    Parses an OpenFOAM residuals file into a DataFrame.
 
-    Parameters:
-        - case_path: path to OpenFOAM case folder
-        - file_path: path to file in case folder
-    Returns:
-        - header: list of column names
-        - data: structured NumPy array
-    '''
-    # Concatenate path
-    path = Path(case_path / file_path)
+    This function specifically handles OpenFOAM formatted logs where the header
+    is located on the second line (prefixed with '#') and fields are whitespace-separated.
+
+    Parameters
+    ----------
+    path : Path
+        The file path to the residuals file.
+
+    Returns
+    -------
+    DataFrame
+        A DataFrame containing the residuals data. Values are converted to floats
+        where possible; otherwise, they are kept as strings or NaN.
+    """
+    # Check if file exists
+    if not path.exists():
+        raise FileNotFoundError(f'Residuals file not found at: {path}')
     # Open and parse file
     with path.open() as f:
         lines = f.readlines()
@@ -74,4 +90,53 @@ def parse_residuals(case_path: Path,
             data.append(row)
     # Convert the list into np.ndarray
     arr = np.array(data)
-    return header, arr
+
+    return DataFrame(header, arr)
+
+
+def parse_yaml_config(cfg_path: str) -> dict[str, str]:
+    """
+    Retrieves configuration labels from a preset or a YAML file.
+
+    Parameters
+    ----------
+    cfg_path : str
+        The configuration source. This can be a preset name
+        ('velocity', 'k', 'nut', 'epsilon', 'omega') or a valid file path
+        to a YAML configuration file.
+
+    Returns
+    -------
+    dict[str, str]
+        A dictionary mapping configuration keys to labels.
+
+    Raises
+    ------
+    FileNotFoundError
+        If `cfg_path` does not match a preset and the provided path does not exist.
+    """
+    # Check if input matches any preset labels
+    labels = Labels()
+    match cfg_path:
+        case 'velocity':
+            return labels.velocity
+        case 'k':
+            return labels.k
+        case 'nut':
+            return labels.nut
+        case 'epsilon':
+            return labels.epsilon
+        case 'omega':
+            return labels.omega
+        case _:
+            pass
+
+    # Otherwise load labels from file
+    path = Path(cfg_path)
+    if not path.exists():
+        raise FileNotFoundError(f'Config file not found at path: {path}')
+
+    with path.open() as f:
+        config = yaml.safe_load(f)
+
+    return config
