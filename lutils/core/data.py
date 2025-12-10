@@ -33,7 +33,6 @@ class FoamCase:
         The OpenFOAM version number.
     of_version_type : str
         The type of OpenFOAM distribution ('com' for ESI/OpenCFD, 'org' for Foundation).
-    fields : dict[str, FieldData]
         A dictionary mapping field names to their corresponding FieldData objects.
     """
 
@@ -76,7 +75,7 @@ class FoamCase:
 
     @property
     def fields(self):
-        """dict: A dictionary of loaded field data."""
+        """dict[str, FieldData]: A dictionary mapping field names to their corresponding FieldData objects. """
         return self._fields
 
     def run_script(self,
@@ -189,13 +188,6 @@ class FieldData:
         The path to the specific data file, relative to `case_path`.
     field_name : str
         The name identifying this field.
-
-    Attributes
-    ----------
-    name : str
-        The name of the field.
-    data : DataFrame
-        A DataFrame containing the parsed internal field data.
     """
 
     def __init__(self,
@@ -217,7 +209,7 @@ class FieldData:
 
     @property
     def data(self):
-        """DataFrame: The stored field data."""
+        """DataFrame: A DataFrame containing the parsed internal field data."""
         return self._data
 
     def get_cells(self,
@@ -276,11 +268,6 @@ class ResidualsData:
     fields : list[str], optional
         A list of specific residual fields to extract. If empty, all fields are loaded.
         Default is an empty list.
-
-    Attributes
-    ----------
-    data : DataFrame
-        A DataFrame containing the parsed residuals.
     """
 
     def __init__(self,
@@ -298,7 +285,7 @@ class ResidualsData:
 
     @property
     def data(self):
-        """DataFrame: The stored residual data."""
+        """DataFrame: A DataFrame containing the parsed residuals."""
         return self._data
 
 

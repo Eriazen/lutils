@@ -7,19 +7,6 @@ class Labels:
     This class provides a set of standard dictionaries for common OpenFOAM
     field variables (Velocity, k, nut, epsilon, omega), containing
     pre-formatted LaTeX strings for titles and axis labels.
-
-    Attributes
-    ----------
-    velocity : dict[str, str]
-        Labels for velocity profiles ($U_x$).
-    k : dict[str, str]
-        Labels for turbulence kinetic energy ($k$).
-    nut : dict[str, str]
-        Labels for turbulence viscosity ($\\nu_t$).
-    epsilon : dict[str, str]
-        Labels for turbulence dissipation ($\\varepsilon$).
-    omega : dict[str, str]
-        Labels for specific turbulence dissipation rate ($\\omega$).
     """
 
     def __init__(self):

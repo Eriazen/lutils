@@ -20,11 +20,6 @@ class DataFrame(MutableMapping):
     data : np.ndarray
         A 2D NumPy array containing the table data. The shape must be
         (rows, len(header)).
-
-    Attributes
-    ----------
-    shape : tuple[int, int]
-        The dimensions of the dataframe (rows, columns).
     """
 
     def __init__(self,
