@@ -1,12 +1,12 @@
-from .data import Field, InterpolationInfo
-from .test import compare_profiles, int_check, ds
-from .sim import Simulation
+from lutils.core.data import FoamCase, FieldData, ResidualsData
+from lutils.core.types import DataFrame
+from lutils.core.manager import CaseManager
+#from .processor import Simulation
 
 __all__ = [
-    "Field",
-    "InterpolationInfo",
-    "Simulation",
-    "compare_profiles",
-    "int_check",
-    "ds"
+    'FoamCase',
+    'FieldData',
+    'ResidualsData',
+    'DataFrame',
+    'CaseManager'
 ]
