@@ -1,14 +1,15 @@
 from pathlib import Path
 import numpy as np
 import yaml
+import petl
 
 from lutils.core.types import DataFrame
 from lutils.plt_cfg.labels import Labels
 
 
-def parse_internal_field(path: Path) -> DataFrame:
+def parse_internal_field(path: Path) -> petl.Table:
     """
-    Parses a CSV-style internal field file into a DataFrame.
+    Parses a CSV-style internal field file into a petl.Table.
 
     This function expects a comma-separated format where the first line contains
     headers and subsequent lines contain numerical data.
@@ -20,29 +21,33 @@ def parse_internal_field(path: Path) -> DataFrame:
 
     Returns
     -------
-    DataFrame
-        A DataFrame instance containing the parsed numerical data.
+    petl.Table
+        A table instance containing the parsed numerical data.
     """
     if not path.exists():
         raise FileNotFoundError(f'Internal field file not found at: {path}')
-    # Open and parse file
-    with path.open() as f:
-        lines = f.readlines()
-        # Separate header
-        header = lines[0].strip().split(',')
-        data = []
-        for line in lines[1:]:
-            # Skip empty lines
-            if not line.strip():
-                continue
-            values = line.strip().split(',')
-            # Convert to float, convert to np.nan for empty cells
-            row = [float(x) if x else np.nan for x in values]
-            data.append(row)
-    # Convert the list into np.ndarray
-    arr = np.array(data)
 
-    return DataFrame(header, arr)
+    table = petl.fromcsv(path)
+    table = petl.convertnumbers(table)
+
+    # # Open and parse file
+    # with path.open() as f:
+    #     lines = f.readlines()
+    #     # Separate header
+    #     header = lines[0].strip().split(',')
+    #     data = []
+    #     for line in lines[1:]:
+    #         # Skip empty lines
+    #         if not line.strip():
+    #             continue
+    #         values = line.strip().split(',')
+    #         # Convert to float, convert to np.nan for empty cells
+    #         row = [float(x) if x else np.nan for x in values]
+    #         data.append(row)
+    # # Convert the list into np.ndarray
+    # arr = np.array(data)
+
+    return table
 
 
 def parse_residuals(path: Path) -> DataFrame:

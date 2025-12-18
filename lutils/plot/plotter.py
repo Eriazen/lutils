@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import matplotlib.figure as fgr
 from pathlib import Path
 from typing import cast
+import petl
 
 from lutils.core.data import FoamCase
 from lutils.utils.misc import check_dir
@@ -145,12 +146,21 @@ class FoamPlot:
 
         # Plot all plot data entries
         for key, value in self._plot_data.items():
+
+            # Trim data
             trimmed = value.get_cells(
                 position_axis, position_value, data_axis, position_tol)
-            ax.scatter(trimmed[data_axis],
-                       trimmed[field], label=key)
+
+            # Get x and y axis values
+            x_values = list(petl.values(trimmed, data_axis))
+            y_values = list(petl.values(trimmed, field))
+
+            ax.scatter(x_values,
+                       y_values, label=key)
+            # Save to a csv
             if out_csv:
-                trimmed.to_csv(self._plot_dir / str(key+'.csv'))
+                out_path = self._plot_dir / f'{key}.csv'
+                petl.tocsv(trimmed, out_path)
 
         fig.legend()
 

@@ -1,6 +1,6 @@
-import numpy as np
 from pathlib import Path
 import subprocess
+import petl
 
 from lutils.io.parser import (parse_internal_field,
                               parse_residuals,
@@ -197,12 +197,11 @@ class FieldData:
                  file_path: str,
                  field_name: str) -> None:
         # Parse data into DataFrame
-        self._internal_field = parse_internal_field(case_path / file_path)
+        raw_table = parse_internal_field(case_path / file_path)
         self._name = field_name
 
         # Filter relevant columns
-        keys = ['x', 'y', 'z', self._name]
-        self._data = DataFrame(keys, self._internal_field[keys])
+        self._data = petl.cut(raw_table, 'x', 'y', 'z', self._name)
 
     @property
     def name(self):
@@ -211,14 +210,14 @@ class FieldData:
 
     @property
     def data(self):
-        """DataFrame: A DataFrame containing the parsed internal field data."""
+        """petl.Table: A petl.Table containing the parsed internal field data."""
         return self._data
 
     def get_cells(self,
                   position_axis: str,
                   position_value: float,
                   data_axis: str,
-                  tol: float) -> DataFrame:
+                  tol: float) -> petl.Table:
         """
         Extracts a subset of cells near a specific coordinate and sorts them.
 
@@ -235,26 +234,18 @@ class FieldData:
 
         Returns
         -------
-        DataFrame
-            A DataFrame containing the filtered cells, sorted by `data_axis`.
+        petl.Table
+            A petl.Table containing the filtered cells, sorted by `data_axis`.
         """
-        # Get position axis values
-        column_names = self.data._header
-        data_axis_values = self.data[position_axis]
+        def is_near(row):
+            val = row[position_axis]
+            if val is None:
+                return False
+            return abs(val - position_value) < tol
 
-        # Find all cells close to position value
-        absolute_diff = np.abs(data_axis_values-position_value)
-        filter_idx = np.where(absolute_diff < tol)[0]
+        res = (self._data.select(is_near).sort(data_axis))
 
-        # Filter data
-        filtered_data = self.data._data[filter_idx]
-
-        # Sort filtered data
-        sort_column_idx = self.data._map[data_axis]
-        sorting_idx = np.argsort(filtered_data[:, sort_column_idx])
-        sorted_filtered_data = filtered_data[sorting_idx]
-
-        return DataFrame(column_names, sorted_filtered_data)
+        return res
 
 
 class ResidualsData:
