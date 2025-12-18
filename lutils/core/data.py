@@ -2,7 +2,9 @@ import numpy as np
 from pathlib import Path
 import subprocess
 
-from lutils.io.parser import parse_internal_field, parse_residuals
+from lutils.io.parser import (parse_internal_field,
+                              parse_residuals,
+                              parse_interpolation)
 from lutils.utils.misc import get_of_version, check_dir
 from lutils.core.types import DataFrame
 
@@ -290,7 +292,25 @@ class ResidualsData:
 
 
 class InterpolationData:
-    pass
+    def __init__(self,
+                 case_path: Path,
+                 file_path: str,
+                 fields: list[str] = []) -> None:
+        interpolation = parse_interpolation(case_path / file_path)
+
+        if not fields:
+            self._data = interpolation
+        else:
+            self._data = DataFrame(fields, interpolation[fields])
+
+        HEADER = ['cellCenter', 'surfNorm', 'intPoints', 'intCells']
+
+        for col in HEADER:
+            try:
+                res = self._data[col]
+                print(res)
+            except KeyError:
+                continue
 
 
 class GeometryData:
