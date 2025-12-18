@@ -11,7 +11,8 @@ readme = "README.md"
 dependencies = [
     "numpy",
     "matplotlib",
-    "pyyaml"
+    "pyyaml",
+    "petl"
 ]
 
 [project.urls]
