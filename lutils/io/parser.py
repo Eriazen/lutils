@@ -94,6 +94,28 @@ def parse_residuals(path: Path) -> DataFrame:
     return DataFrame(header, arr)
 
 
+def parse_interpolation(path: Path) -> DataFrame:
+    if not path.exists():
+        raise FileNotFoundError(
+            f'Interpolation data file not found at: {path}')
+
+    with path.open() as f:
+        lines = f.readlines()
+
+        header = lines[0].strip().split(',')
+        data = []
+        for line in lines[1:]:
+            if not line.strip():
+                continue
+            row = line.strip().split(',')
+
+            data.append(row)
+
+    arr = np.array(data)
+
+    return DataFrame(header, arr)
+
+
 def parse_yaml_config(cfg_path: str) -> dict[str, str]:
     """
     Retrieves configuration labels from a preset or a YAML file.
